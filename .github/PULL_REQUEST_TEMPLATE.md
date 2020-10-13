@@ -4,7 +4,7 @@ Collateral Type (e.g. `ETH-A`):
 
 COB Team Name or Author(s):
 
-`GemJoin` Adapter:
+GemJoin Adapter:
 
 Is this GemJoin adapter new? :
 
