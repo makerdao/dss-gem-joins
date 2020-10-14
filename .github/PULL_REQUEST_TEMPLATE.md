@@ -17,11 +17,11 @@ If so, why is a new one needed? :
 - [ ] If needed, a new `GemJoin` has been added in `src/` as `join-X.sol`
 - [ ] A new test (`testGemJoinX_TOKEN()`) has been added to `src/join.t.sol` and follows previous tests as examples
 - [ ] If needed, other tests have been added to verify functionality of the new `GemJoin`:
-    - testFailGemJoinXJoinWad
-    - testFailGemJoinXExitWad
-    - testFailGemJoinXJoin
-    - testFailGemJoinXExit
-    - testFailJoinAfterCageGemJoinX
+    - [ ] `testFailGemJoinXJoinWad()`
+    - [ ] `testFailGemJoinXExitWad()`
+    - [ ] `testFailGemJoinXJoin()`
+    - [ ] `testFailGemJoinXExit()`
+    - [ ] `testFailJoinAfterCageGemJoinX()`
 - [ ] README has been updated to reflect a new token and `GemJoin` addition
 
 # Checklist
