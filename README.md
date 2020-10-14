@@ -23,3 +23,4 @@ Note: `dss-gem-joins` is not reflective of supported Collateral Types on the mai
 |COMP|GemJoin|
 |LRC|GemJoin|
 |LINK|GemJoin|
+|BAL|GemJoin|
