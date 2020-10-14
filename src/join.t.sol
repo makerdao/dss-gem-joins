@@ -10,6 +10,7 @@ import {GemJoin6} from "./join-6.sol";
 import {GemJoin7} from "./join-7.sol";
 import {AuthGemJoin} from "./join-auth.sol";
 
+import "./tokens/BAL.sol";
 import "./tokens/BAT.sol";
 import "./tokens/COMP.sol";
 import "./tokens/DGD.sol";
@@ -395,6 +396,30 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(link.balanceOf(address(this)), 94 ether);
         assertEq(link.balanceOf(address(linkJoin)), 6 ether);
         assertEq(vat.gem("LINK", address(this)), 6 ether);
+    }
+
+    function testGemJoin_BAL() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        BAL bal = new BAL("Balancer", "BAL");
+        bal.mint(address(this), 100 ether);
+        GemJoin balJoin = new GemJoin(address(vat), "BAL", address(bal));
+        assertEq(balJoin.dec(), 18);
+
+        dssDeploy.deployCollateral("BAL", address(balJoin), address(pip));
+
+        bal.approve(address(balJoin), uint256(-1));
+        assertEq(bal.balanceOf(address(this)), 100 ether);
+        assertEq(bal.balanceOf(address(balJoin)), 0);
+        assertEq(vat.gem("BAL", address(this)), 0);
+        balJoin.join(address(this), 10 ether);
+        assertEq(bal.balanceOf(address(balJoin)), 10 ether);
+        assertEq(vat.gem("BAL", address(this)), 10 ether);
+        balJoin.exit(address(this), 4 ether);
+        assertEq(bal.balanceOf(address(this)), 94 ether);
+        assertEq(bal.balanceOf(address(balJoin)), 6 ether);
+        assertEq(vat.gem("BAL", address(this)), 6 ether);
     }
 
     function testFailGemJoin6Join() public {
