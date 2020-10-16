@@ -956,9 +956,9 @@ contract ERC20 is Context, IERC20 {
      * All three of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor (string memory name, string memory symbol) public {
-        _name = name;
-        _symbol = symbol;
+    constructor () public {
+        _name = "Balancer";
+        _symbol = "BAL";
         _decimals = 18;
     }
 
@@ -1410,7 +1410,7 @@ contract BAL is AccessControl, ERC20Snapshot {
     bytes32 public immutable PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
     mapping(address => uint) public nonces;
 
-    constructor(string memory name, string memory symbol) public ERC20(name, symbol) {
+    constructor() public ERC20() {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(MINTER_ROLE, _msgSender());
         _setupRole(SNAPSHOT_ROLE, _msgSender());
@@ -1419,7 +1419,7 @@ contract BAL is AccessControl, ERC20Snapshot {
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256('EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)'),
-                keccak256(bytes(name)),
+                keccak256(bytes(name())),
                 keccak256(bytes(version)),
                 chainId,
                 address(this)
