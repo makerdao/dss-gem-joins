@@ -402,8 +402,7 @@ contract DssDeployTest is DssDeployTestBase {
         deployKeepAuth();
         DSValue pip = new DSValue();
 
-        BAL bal = new BAL();
-        bal.mint(address(this), 100 ether);
+        BAL bal = new BAL(100 ether);
         GemJoin balJoin = new GemJoin(address(vat), "BAL", address(bal));
         assertEq(balJoin.dec(), 18);
 
