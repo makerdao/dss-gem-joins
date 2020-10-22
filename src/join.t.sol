@@ -26,6 +26,7 @@ import "./tokens/TUSD.sol";
 import "./tokens/USDC.sol";
 import "./tokens/USDT.sol";
 import "./tokens/WBTC.sol";
+import "./tokens/YFI.sol";
 import "./tokens/ZRX.sol";
 
 contract DssDeployTest is DssDeployTestBase {
@@ -419,6 +420,29 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(bal.balanceOf(address(this)), 94 ether);
         assertEq(bal.balanceOf(address(balJoin)), 6 ether);
         assertEq(vat.gem("BAL", address(this)), 6 ether);
+    }
+
+    function testGemJoin_YFI() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        YFI yfi = new YFI(100 ether);
+        GemJoin yfiJoin = new GemJoin(address(vat), "YFI", address(yfi));
+        assertEq(yfiJoin.dec(), 18);
+
+        dssDeploy.deployCollateral("YFI", address(yfiJoin), address(pip));
+
+        yfi.approve(address(yfiJoin), uint256(-1));
+        assertEq(yfi.balanceOf(address(this)), 100 ether);
+        assertEq(yfi.balanceOf(address(yfiJoin)), 0);
+        assertEq(vat.gem("YFI", address(this)), 0);
+        yfiJoin.join(address(this), 10 ether);
+        assertEq(yfi.balanceOf(address(yfiJoin)), 10 ether);
+        assertEq(vat.gem("YFI", address(this)), 10 ether);
+        yfiJoin.exit(address(this), 4 ether);
+        assertEq(yfi.balanceOf(address(this)), 94 ether);
+        assertEq(yfi.balanceOf(address(yfiJoin)), 6 ether);
+        assertEq(vat.gem("YFI", address(this)), 6 ether);
     }
 
     function testFailGemJoin6Join() public {
