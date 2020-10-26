@@ -404,7 +404,7 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
 
         GUSD gusd = new GUSD(100 * 10 ** 2);
-        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd), "erc20Impl()");
+        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         gusdJoin.setImplementation(address(gusd), 1);
         assertEq(gusdJoin.dec(), 2);
 
@@ -535,7 +535,7 @@ contract DssDeployTest is DssDeployTestBase {
         deployKeepAuth();
         DSValue pip = new DSValue();
         GUSD gusd = new GUSD(100 * 10 ** 2);
-        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd), "erc20Impl()");
+        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
         gusd.approve(address(gusdJoin), uint(-1));
         // Fail here
@@ -546,7 +546,7 @@ contract DssDeployTest is DssDeployTestBase {
         deployKeepAuth();
         DSValue pip = new DSValue();
         GUSD gusd = new GUSD(100 * 10 ** 2);
-        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd), "erc20Impl()");
+        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
         gusd.approve(address(gusdJoin), uint(-1));
         gusdJoin.join(address(this), 10 * 10 ** 2);
@@ -558,7 +558,7 @@ contract DssDeployTest is DssDeployTestBase {
         deployKeepAuth();
         DSValue pip = new DSValue();
         GUSD gusd = new GUSD(100 * 10 ** 2);
-        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd), "erc20Impl()");
+        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
         gusd.approve(address(gusdJoin), uint(-1));
         assertEq(gusd.balanceOf(address(this)), 100 * 10 ** 2);
@@ -573,21 +573,13 @@ contract DssDeployTest is DssDeployTestBase {
         deployKeepAuth();
         DSValue pip = new DSValue();
         GUSD gusd = new GUSD(100 * 10 ** 2);
-        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd), "erc20Impl()");
+        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
         gusd.approve(address(gusdJoin), uint(-1));
         gusdJoin.join(address(this), 10 * 10 ** 2);
         gusd.setImplementation(address(1));
         // Fail here
         gusdJoin.exit(address(this), 10 * 10 ** 2);
-    }
-
-    function testFailGemJoin8BadFunctionSignature() public {
-        deployKeepAuth();
-        DSValue pip = new DSValue();
-        GUSD gusd = new GUSD(100 * 10 ** 2);
-        // Fail here
-        new GemJoin8(address(vat), "GUSD", address(gusd), "erc20Impl2()");
     }
 
     function testFailJoinAfterCageGemJoin2() public {
@@ -687,7 +679,7 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
 
         GUSD gusd = new GUSD(100 * 10 ** 2);
-        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd), "erc20Impl()");
+        GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
 
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
 

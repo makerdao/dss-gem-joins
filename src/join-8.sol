@@ -46,14 +46,13 @@ contract GemJoin8 is LibNote {
     VatLike  public vat;
     bytes32  public ilk;
     GemLike public gem;
-    bytes    public funcSig;
     uint256  public dec;
     uint256  public live;  // Access Flag
 
     mapping (address => uint256) public implementations;
 
     // implFunc_ is a no-argument view that returns a single address which points to the current implementation
-    constructor(address vat_, bytes32 ilk_, address gem_, string memory implFunc_) public {
+    constructor(address vat_, bytes32 ilk_, address gem_) public {
         gem = GemLike(gem_);
         dec = gem.decimals();
         require(dec < 18, "GemJoin8/decimals-18-or-higher");
@@ -61,8 +60,6 @@ contract GemJoin8 is LibNote {
         live = 1;
         vat = VatLike(vat_);
         ilk = ilk_;
-        funcSig = abi.encodeWithSignature(implFunc_);
-        getImplementation();  // Test implementation call is valid
     }
 
     function cage() external note auth {
@@ -73,12 +70,6 @@ contract GemJoin8 is LibNote {
         implementations[implementation] = permitted;  // 1 live, 0 disable
     }
 
-    function getImplementation() internal returns (address) {
-        (bool success, bytes memory returnValue) = address(gem).call(funcSig);
-        require(success, "GemJoin8/invalid-function");
-        return abi.decode(returnValue, (address));
-    }
-
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require(y == 0 || (z = x * y) / y == x, "GemJoin8/overflow");
     }
@@ -87,7 +78,7 @@ contract GemJoin8 is LibNote {
         require(live == 1, "GemJoin8/not-live");
         uint256 wad18 = mul(wad, 10 ** (18 - dec));
         require(int256(wad18) >= 0, "GemJoin8/overflow");
-        require(implementations[getImplementation()] == 1, "GemJoin8/implementation-invalid");
+        require(implementations[gem.erc20Impl()] == 1, "GemJoin8/implementation-invalid");
         vat.slip(ilk, urn, int256(wad18));
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin8/failed-transfer");
     }
@@ -95,7 +86,7 @@ contract GemJoin8 is LibNote {
     function exit(address guy, uint256 wad) public note {
         uint256 wad18 = mul(wad, 10 ** (18 - dec));
         require(int256(wad18) >= 0, "GemJoin8/overflow");
-        require(implementations[getImplementation()] == 1, "GemJoin8/implementation-invalid");
+        require(implementations[gem.erc20Impl()] == 1, "GemJoin8/implementation-invalid");
         vat.slip(ilk, msg.sender, -int256(wad18));
         require(gem.transfer(guy, wad), "GemJoin8/failed-transfer");
     }
