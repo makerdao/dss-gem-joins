@@ -447,7 +447,7 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(vat.gem("YFI", address(this)), 6 ether);
     }
 
-    function testGemJoin_GUSD() public {
+    function testGemJoin8_GUSD() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
 
@@ -458,7 +458,7 @@ contract DssDeployTest is DssDeployTestBase {
 
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
 
-        gusd.approve(address(gusdJoin), uint(-1));
+        gusd.approve(address(gusdJoin), uint256(-1));
         assertEq(gusd.balanceOf(address(this)), 100 * 10 ** 2);
         assertEq(gusd.balanceOf(address(gusdJoin)), 0);
         assertEq(vat.gem("GUSD", address(this)), 0);
@@ -585,7 +585,7 @@ contract DssDeployTest is DssDeployTestBase {
         GUSD gusd = new GUSD(100 * 10 ** 2);
         GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
-        gusd.approve(address(gusdJoin), uint(-1));
+        gusd.approve(address(gusdJoin), uint256(-1));
         // Fail here
         gusdJoin.join(address(this), 10 ether);
     }
@@ -596,7 +596,7 @@ contract DssDeployTest is DssDeployTestBase {
         GUSD gusd = new GUSD(100 * 10 ** 2);
         GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
-        gusd.approve(address(gusdJoin), uint(-1));
+        gusd.approve(address(gusdJoin), uint256(-1));
         gusdJoin.join(address(this), 10 * 10 ** 2);
         // Fail here
         gusdJoin.exit(address(this), 10 ether);
@@ -608,7 +608,7 @@ contract DssDeployTest is DssDeployTestBase {
         GUSD gusd = new GUSD(100 * 10 ** 2);
         GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
-        gusd.approve(address(gusdJoin), uint(-1));
+        gusd.approve(address(gusdJoin), uint256(-1));
         assertEq(gusd.balanceOf(address(this)), 100 * 10 ** 2);
         assertEq(gusd.balanceOf(address(gusdJoin)), 0);
         assertEq(vat.gem("GUSD", address(this)), 0);
@@ -623,7 +623,7 @@ contract DssDeployTest is DssDeployTestBase {
         GUSD gusd = new GUSD(100 * 10 ** 2);
         GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
-        gusd.approve(address(gusdJoin), uint(-1));
+        gusd.approve(address(gusdJoin), uint256(-1));
         gusdJoin.join(address(this), 10 * 10 ** 2);
         gusd.setImplementation(address(1));
         // Fail here
@@ -731,7 +731,7 @@ contract DssDeployTest is DssDeployTestBase {
 
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
 
-        gusd.approve(address(gusdJoin), uint(-1));
+        gusd.approve(address(gusdJoin), uint256(-1));
         gusdJoin.join(address(this), 10);
         gusdJoin.cage();
         gusdJoin.join(address(this), 10);

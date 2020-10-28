@@ -45,7 +45,7 @@ contract GemJoin8 is LibNote {
 
     VatLike  public vat;
     bytes32  public ilk;
-    GemLike public gem;
+    GemLike  public gem;
     uint256  public dec;
     uint256  public live;  // Access Flag
 
