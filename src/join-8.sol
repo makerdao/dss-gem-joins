@@ -51,7 +51,6 @@ contract GemJoin8 is LibNote {
 
     mapping (address => uint256) public implementations;
 
-    // implFunc_ is a no-argument view that returns a single address which points to the current implementation
     constructor(address vat_, bytes32 ilk_, address gem_) public {
         gem = GemLike(gem_);
         dec = gem.decimals();
