@@ -9,6 +9,7 @@ import {GemJoin5} from "./join-5.sol";
 import {GemJoin6} from "./join-6.sol";
 import {GemJoin7} from "./join-7.sol";
 import {GemJoin8} from "./join-8.sol";
+import {GemJoin9} from "./join-9.sol";
 import {AuthGemJoin} from "./join-auth.sol";
 
 import "./tokens/BAL.sol";
@@ -22,6 +23,7 @@ import "./tokens/LINK.sol";
 import "./tokens/LRC.sol";
 import "./tokens/MANA.sol";
 import "./tokens/OMG.sol";
+import "./tokens/PAXG.sol";
 import "./tokens/PAXUSD.sol";
 import "./tokens/REP.sol";
 import "./tokens/TUSD.sol";
@@ -471,6 +473,28 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(vat.gem("GUSD", address(this)), 6 ether);
     }
 
+    function testGemJoin_PAXG() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        PAXG paxg = new PAXG(100 * 10 ** 18);
+        GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
+
+        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+
+        paxg.approve(address(paxgJoin), uint256(-1));
+        assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 0);
+        assertEq(vat.gem("PAXG", address(this)), 0);
+        paxgJoin.join(address(this), 10 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 10 * 10 ** 18);
+        assertEq(vat.gem("PAXG", address(this)), 10 ether);
+        paxgJoin.exit(address(this), 4 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(this)), 94 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 6 * 10 ** 18);
+        assertEq(vat.gem("PAXG", address(this)), 6 ether);
+    }
+
     function testFailGemJoin6Join() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
@@ -628,6 +652,70 @@ contract DssDeployTest is DssDeployTestBase {
         gusd.setImplementation(address(1));
         // Fail here
         gusdJoin.exit(address(this), 10 * 10 ** 2);
+    }
+
+    function testFailGemJoin9JoinWad() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+        PAXG paxg = new PAXG(100 * 10 ** 18);
+        GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
+        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        paxg.approve(address(paxgJoin), uint256(-1));
+        // Fail here
+        paxgJoin.join(address(this), 1000 ether);
+    }
+
+    function testFailGemJoin9ExitWad() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+        PAXG paxg = new PAXG(100 * 10 ** 18);
+        GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
+        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        paxg.approve(address(paxgJoin), uint256(-1));
+        paxgJoin.join(address(this), 10 * 10 ** 18);
+        // Fail here
+        paxgJoin.exit(address(this), 100 ether);
+    }
+
+    function testGemJoin9JoinFee() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+        PAXG paxg = new PAXG(100 * 10 ** 18);
+        GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
+        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        paxg.approve(address(paxgJoin), uint256(-1));
+        assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 0);
+        assertEq(vat.gem("PAXG", address(this)), 0);
+        assertEq(paxg.balanceOf(paxg.feeRecipient()), 0);
+        paxg.setFeeRate(40000);     // 4%
+        paxgJoin.join(address(this), 100 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(this)), 0);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 96 * 10 ** 18);
+        assertEq(vat.gem("PAXG", address(this)), 96 * 10 ** 18);
+        assertEq(paxg.balanceOf(paxg.feeRecipient()), 4 * 10 ** 18);
+        paxg.setFeeRate(250000);     // 25%
+        paxgJoin.exit(address(this), 96 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(this)), 72 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 0);
+        assertEq(vat.gem("PAXG", address(this)), 0);
+        assertEq(paxg.balanceOf(paxg.feeRecipient()), 28 * 10 ** 18);
+    }
+
+    function testFailGemJoin9JoinFee() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+        PAXG paxg = new PAXG(100 * 10 ** 18);
+        GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
+        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        paxg.approve(address(paxgJoin), uint256(-1));
+        assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 0);
+        assertEq(vat.gem("PAXG", address(this)), 0);
+        paxg.setFeeRate(10000);     // 1%
+        paxgJoin.join(address(this), 100 * 10 ** 18);
+        // Fail here
+        paxgJoin.exit(address(this), 100 * 10 ** 18);
     }
 
     function testFailJoinAfterCageGemJoin2() public {
