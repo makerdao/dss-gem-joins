@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-/// join-5.sol -- Non-standard token adapters
+/// join-9s.sol -- Non-standard token adapters
 
 // Copyright (C) 2018 Rain <rainbreak@riseup.net>
 // Copyright (C) 2018-2020 Maker Ecosystem Growth Holdings, INC.
