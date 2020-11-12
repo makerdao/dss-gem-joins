@@ -453,7 +453,6 @@ contract DssDeployTest is DssDeployTestBase {
 
         GUSD gusd = new GUSD(100 * 10 ** 2);
         GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
-        gusdJoin.setImplementation(address(gusd), 1);
         assertEq(gusdJoin.dec(), 2);
 
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));

@@ -57,6 +57,7 @@ contract GemJoin8 is LibNote {
         require(dec < 18, "GemJoin8/decimals-18-or-higher");
         wards[msg.sender] = 1;
         live = 1;
+        setImplementation(gem.erc20Impl(), 1);
         vat = VatLike(vat_);
         ilk = ilk_;
     }
