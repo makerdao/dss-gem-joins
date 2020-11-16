@@ -32,8 +32,8 @@ contract PAXG {
         uint256 indexed newFeeRate
     );
 
-    string  public  name = "BAT";
-    string  public  symbol = "BAT";
+    string  public  name = "Paxos Gold";
+    string  public  symbol = "PAXG";
     uint256 public  decimals = 18;
     uint256                                            _supply;
     mapping (address => uint256)                       _balances;
