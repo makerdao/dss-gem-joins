@@ -68,12 +68,12 @@ contract GemJoin9 is LibNote {
     }
     function join(address usr, uint256 wad) external note {
         require(live == 1, "GemJoin/not-live");
-        uint256 wadMinusFee = sub(wad, gem.getFeeFor(wad));
-        require(int256(wadMinusFee) >= 0, "GemJoin/overflow");
-        vat.slip(ilk, usr, int256(wadMinusFee));
-        uint256 beforeBal = gem.balanceOf(address(this));
+        uint256 sad = sub(wad, gem.getFeeFor(wad));
+        require(int256(sad) >= 0, "GemJoin/overflow");
+        vat.slip(ilk, usr, int256(sad));
+        uint256 bal = gem.balanceOf(address(this));
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
-        require(sub(gem.balanceOf(address(this)), beforeBal) == wadMinusFee, "GemJoin/bad-fee");
+        require(sub(gem.balanceOf(address(this)), bal) == sad, "GemJoin/bad-fee");
     }
     function exit(address usr, uint256 wad) external note {
         require(wad <= 2 ** 255, "GemJoin/overflow");
