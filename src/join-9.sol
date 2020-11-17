@@ -27,6 +27,7 @@ interface VatLike {
 }
 
 interface GemLike {
+    function balanceOf(address) external view returns (uint256);
     function decimals() external view returns (uint8);
     function transfer(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
@@ -69,7 +70,9 @@ contract GemJoin9 is LibNote {
         require(live == 1, "GemJoin/not-live");
         require(int256(wad) >= 0, "GemJoin/overflow");
         vat.slip(ilk, usr, int256(sub(wad, gem.getFeeFor(wad))));
+        uint256 beforeBal = gem.balanceOf(address(this));
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
+        require(sub(gem.balanceOf(address(this)), beforeBal) == sub(wad, gem.getFeeFor(wad)), "GemJoin/bad-fee");
     }
     function exit(address usr, uint256 wad) external note {
         require(wad <= 2 ** 255, "GemJoin/overflow");
