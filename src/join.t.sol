@@ -25,6 +25,7 @@ import "./tokens/OMG.sol";
 import "./tokens/PAXUSD.sol";
 import "./tokens/REP.sol";
 import "./tokens/TUSD.sol";
+import "./tokens/UNI.sol";
 import "./tokens/USDC.sol";
 import "./tokens/USDT.sol";
 import "./tokens/WBTC.sol";
@@ -353,6 +354,29 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(comp.balanceOf(address(this)), 94 ether);
         assertEq(comp.balanceOf(address(compJoin)), 6 ether);
         assertEq(vat.gem("COMP", address(this)), 6 ether);
+    }
+
+        function testGemJoin_UNI() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        UNI uni = new UNI(100 ether);
+        GemJoin uniJoin = new GemJoin(address(vat), "UNI", address(uni));
+        assertEq(uniJoin.dec(), 18);
+
+        dssDeploy.deployCollateral("UNI", address(uniJoin), address(pip));
+
+        uni.approve(address(uniJoin), uint256(-1));
+        assertEq(uni.balanceOf(address(this)), 100 ether);
+        assertEq(uni.balanceOf(address(uniJoin)), 0);
+        assertEq(vat.gem("UNI", address(this)), 0);
+        uniJoin.join(address(this), 10 ether);
+        assertEq(uni.balanceOf(address(uniJoin)), 10 ether);
+        assertEq(vat.gem("UNI", address(this)), 10 ether);
+        uniJoin.exit(address(this), 4 ether);
+        assertEq(uni.balanceOf(address(this)), 94 ether);
+        assertEq(uni.balanceOf(address(uniJoin)), 6 ether);
+        assertEq(vat.gem("UNI", address(this)), 6 ether);
     }
 
     function testGemJoin_LRC() public {
