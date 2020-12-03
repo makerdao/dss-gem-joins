@@ -27,3 +27,4 @@ Note: `dss-gem-joins` is not reflective of supported Collateral Types on the mai
 |YFI|GemJoin|
 |GUSD|GemJoin8|
 |UNI|GemJoin|
+|RENBTC|GemJoin5|
