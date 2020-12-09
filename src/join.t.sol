@@ -23,6 +23,7 @@ import "./tokens/LRC.sol";
 import "./tokens/MANA.sol";
 import "./tokens/OMG.sol";
 import "./tokens/PAXUSD.sol";
+import "./tokens/RENBTC.sol";
 import "./tokens/REP.sol";
 import "./tokens/TUSD.sol";
 import "./tokens/UNI.sol";
@@ -356,7 +357,7 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(vat.gem("COMP", address(this)), 6 ether);
     }
 
-        function testGemJoin_UNI() public {
+    function testGemJoin_UNI() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
 
@@ -492,6 +493,29 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(gusd.balanceOf(address(this)), 94 * 10 ** 2);
         assertEq(gusd.balanceOf(address(gusdJoin)), 6 * 10 ** 2);
         assertEq(vat.gem("GUSD", address(this)), 6 ether);
+    }
+
+    function testGemJoin5_RENBTC() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        RENBTC renbtc = new RENBTC(100 * 10 ** 8);
+        GemJoin5 renbtcJoin = new GemJoin5(address(vat), "RENBTC", address(renbtc));
+        assertEq(renbtcJoin.dec(), 8);
+
+        dssDeploy.deployCollateral("RENBTC", address(renbtcJoin), address(pip));
+
+        renbtc.approve(address(renbtcJoin), uint256(-1));
+        assertEq(renbtc.balanceOf(address(this)), 100 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(renbtcJoin)), 0);
+        assertEq(vat.gem("RENBTC", address(this)), 0);
+        renbtcJoin.join(address(this), 10 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(renbtcJoin)), 10 * 10 ** 8);
+        assertEq(vat.gem("RENBTC", address(this)), 10 ether);
+        renbtcJoin.exit(address(this), 4 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(this)), 94 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(renbtcJoin)), 6 * 10 ** 8);
+        assertEq(vat.gem("RENBTC", address(this)), 6 ether);
     }
 
     function testFailGemJoin6Join() public {
