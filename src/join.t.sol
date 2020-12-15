@@ -11,6 +11,7 @@ import {GemJoin7} from "./join-7.sol";
 import {GemJoin8} from "./join-8.sol";
 import {AuthGemJoin} from "./join-auth.sol";
 
+import "./tokens/AAVE.sol";
 import "./tokens/BAL.sol";
 import "./tokens/BAT.sol";
 import "./tokens/COMP.sol";
@@ -378,6 +379,29 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(uni.balanceOf(address(this)), 94 ether);
         assertEq(uni.balanceOf(address(uniJoin)), 6 ether);
         assertEq(vat.gem("UNI", address(this)), 6 ether);
+    }
+
+    function testGemJoin_AAVE() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        AAVE aave = new AAVE(100 ether);
+        GemJoin aaveJoin = new GemJoin(address(vat), "AAVE", address(aave));
+        assertEq(aaveJoin.dec(), 18);
+
+        dssDeploy.deployCollateral("AAVE", address(aaveJoin), address(pip));
+
+        aave.approve(address(aaveJoin), uint256(-1));
+        assertEq(aave.balanceOf(address(this)), 100 ether);
+        assertEq(aave.balanceOf(address(aaveJoin)), 0);
+        assertEq(vat.gem("AAVE", address(this)), 0);
+        aaveJoin.join(address(this), 10 ether);
+        assertEq(aave.balanceOf(address(aaveJoin)), 10 ether);
+        assertEq(vat.gem("AAVE", address(this)), 10 ether);
+        aaveJoin.exit(address(this), 4 ether);
+        assertEq(aave.balanceOf(address(this)), 94 ether);
+        assertEq(aave.balanceOf(address(aaveJoin)), 6 ether);
+        assertEq(vat.gem("AAVE", address(this)), 6 ether);
     }
 
     function testGemJoin_LRC() public {
