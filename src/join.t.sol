@@ -385,23 +385,23 @@ contract DssDeployTest is DssDeployTestBase {
         deployKeepAuth();
         DSValue pip = new DSValue();
 
-        AAVE aave = new AAVE(100 ether);
+        AAVE aave = new AAVE(100 * 10**18);
         GemJoin aaveJoin = new GemJoin(address(vat), "AAVE", address(aave));
         assertEq(aaveJoin.dec(), 18);
 
         dssDeploy.deployCollateral("AAVE", address(aaveJoin), address(pip));
 
         aave.approve(address(aaveJoin), uint256(-1));
-        assertEq(aave.balanceOf(address(this)), 100 ether);
+        assertEq(aave.balanceOf(address(this)), 100 * 10**18);
         assertEq(aave.balanceOf(address(aaveJoin)), 0);
         assertEq(vat.gem("AAVE", address(this)), 0);
-        aaveJoin.join(address(this), 10 ether);
-        assertEq(aave.balanceOf(address(aaveJoin)), 10 ether);
-        assertEq(vat.gem("AAVE", address(this)), 10 ether);
-        aaveJoin.exit(address(this), 4 ether);
-        assertEq(aave.balanceOf(address(this)), 94 ether);
-        assertEq(aave.balanceOf(address(aaveJoin)), 6 ether);
-        assertEq(vat.gem("AAVE", address(this)), 6 ether);
+        aaveJoin.join(address(this), 10 * 10**18);
+        assertEq(aave.balanceOf(address(aaveJoin)), 10 * 10**18);
+        assertEq(vat.gem("AAVE", address(this)), 10 * 10**18);
+        aaveJoin.exit(address(this), 4 * 10**18);
+        assertEq(aave.balanceOf(address(this)), 94 * 10**18);
+        assertEq(aave.balanceOf(address(aaveJoin)), 6 * 10**18);
+        assertEq(vat.gem("AAVE", address(this)), 6 * 10**18);
     }
 
     function testGemJoin_LRC() public {
