@@ -11,6 +11,8 @@ import {GemJoin7} from "./join-7.sol";
 import {GemJoin8} from "./join-8.sol";
 import {AuthGemJoin} from "./join-auth.sol";
 
+import {IlkDeployer} from "./ilk-deployer.sol";
+
 import "./tokens/AAVE.sol";
 import "./tokens/BAL.sol";
 import "./tokens/BAT.sol";
