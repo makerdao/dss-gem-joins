@@ -21,6 +21,7 @@
 pragma solidity >=0.5.12;
 
 import "./join.sol";
+import "./join-auth.sol";
 import "./join-2.sol";
 import "./join-3.sol";
 import "./join-4.sol";
@@ -42,41 +43,42 @@ interface FlipFab {
     function newFlip(address,address,bytes32) external returns (address);
 }
 
-contract IlkFab {
+contract IlkDeployer {
     Changelog public constant changelog = Changelog(0xdA0Ab1e0017DEbCd72Be8599041a2aa3bA7e740F);
 
     address public flip;
     address public join;
 
     constructor(uint256 join_, bytes32 ilk_, address gem_) public {
+        address vat = changelog.getAddress("MCD_VAT");
 
-        if        (join_ == 0) {
-            join = address(new GemJoin(Changelog.getAddress("MCD_VAT"), ilk_, gem_));
+        if (join_ == 0) {
+            join = address(new GemJoin(vat, ilk_, gem_));
         } else if (join_ == 1) {
-            join = address(new GemJoinAuth(Changelog.getAddress("MCD_VAT"), ilk_, gem_));
+            join = address(new AuthGemJoin(vat, ilk_, gem_));
         } else if (join_ == 2) {
-            join = address(new GemJoin2(changelog.getAddress("MCD_VAT"), ilk_, gem_));
+            join = address(new GemJoin2(vat, ilk_, gem_));
         } else if (join_ == 3) {
-            join = address(new GemJoin3(changelog.getAddress("MCD_VAT"), ilk_, gem_, uint256(GemLike(gem_).decimals())));
+            join = address(new GemJoin3(vat, ilk_, gem_, uint256(GemLike(gem_).decimals())));
         } else if (join_ == 4) {
-            join = address(new GemJoin4(changelog.getAddress("MCD_VAT"), ilk_, gem_));
+            join = address(new GemJoin4(vat, ilk_, gem_));
         } else if (join_ == 5) {
-            join = address(new GemJoin5(changelog.getAddress("MCD_VAT"), ilk_, gem_));
+            join = address(new GemJoin5(vat, ilk_, gem_));
         } else if (join_ == 6) {
-            join = address(new GemJoin6(changelog.getAddress("MCD_VAT"), ilk_, gem_));
+            join = address(new GemJoin6(vat, ilk_, gem_));
         } else if (join_ == 7) {
-            join = address(new GemJoin7(changelog.getAddress("MCD_VAT"), ilk_, gem_));
+            join = address(new GemJoin7(vat, ilk_, gem_));
         } else if (join_ == 8) {
-            join = address(new GemJoin8(changelog.getAddress("MCD_VAT"), ilk_, gem_));
+            join = address(new GemJoin8(vat, ilk_, gem_));
         } else {
             revert("IlkFab/invalid-join-type");
         }
-
-        Auth(join).rely(changelog.getAddress("MCD_PAUSE_PROXY"));
+        address pause_proxy = changelog.getAddress("MCD_PAUSE_PROXY");
+        Auth(join).rely(pause_proxy);
         Auth(join).deny(address(this));
 
-        flip = FlipFab(changelog.getAddress("FLIP_FAB")).newFlip(changelog.getAddress("MCD_VAT"), changelog.getAddress("MCD_CAT"), ilk_);
-        Auth(flip).rely(changelog.getAddress("MCD_PAUSE_PROXY"));
+        flip = FlipFab(changelog.getAddress("FLIP_FAB")).newFlip(vat, changelog.getAddress("MCD_CAT"), ilk_);
+        Auth(flip).rely(pause_proxy);
         Auth(flip).deny(address(this));
     }
 }
