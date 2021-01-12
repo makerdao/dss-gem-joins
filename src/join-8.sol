@@ -74,20 +74,20 @@ contract GemJoin8 is LibNote {
         require(y == 0 || (z = x * y) / y == x, "GemJoin8/overflow");
     }
 
-    function join(address urn, uint256 wad) public note {
+    function join(address urn, uint256 amt) public note {
         require(live == 1, "GemJoin8/not-live");
-        uint256 wad18 = mul(wad, 10 ** (18 - dec));
-        require(int256(wad18) >= 0, "GemJoin8/overflow");
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(int256(wad) >= 0, "GemJoin8/overflow");
         require(implementations[gem.erc20Impl()] == 1, "GemJoin8/implementation-invalid");
-        vat.slip(ilk, urn, int256(wad18));
-        require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin8/failed-transfer");
+        vat.slip(ilk, urn, int256(wad));
+        require(gem.transferFrom(msg.sender, address(this), amt), "GemJoin8/failed-transfer");
     }
 
-    function exit(address guy, uint256 wad) public note {
-        uint256 wad18 = mul(wad, 10 ** (18 - dec));
-        require(int256(wad18) >= 0, "GemJoin8/overflow");
+    function exit(address guy, uint256 amt) public note {
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(int256(wad) >= 0, "GemJoin8/overflow");
         require(implementations[gem.erc20Impl()] == 1, "GemJoin8/implementation-invalid");
-        vat.slip(ilk, msg.sender, -int256(wad18));
-        require(gem.transfer(guy, wad), "GemJoin8/failed-transfer");
+        vat.slip(ilk, msg.sender, -int256(wad));
+        require(gem.transfer(guy, amt), "GemJoin8/failed-transfer");
     }
 }

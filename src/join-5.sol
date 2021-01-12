@@ -65,18 +65,18 @@ contract GemJoin5 is LibNote {
         require(y == 0 || (z = x * y) / y == x, "GemJoin5/overflow");
     }
 
-    function join(address urn, uint256 wad) public note {
+    function join(address urn, uint256 amt) public note {
         require(live == 1, "GemJoin5/not-live");
-        uint256 wad18 = mul(wad, 10 ** (18 - dec));
-        require(int256(wad18) >= 0, "GemJoin5/overflow");
-        vat.slip(ilk, urn, int256(wad18));
-        require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin5/failed-transfer");
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(int256(wad) >= 0, "GemJoin5/overflow");
+        vat.slip(ilk, urn, int256(wad));
+        require(gem.transferFrom(msg.sender, address(this), amt), "GemJoin5/failed-transfer");
     }
 
-    function exit(address guy, uint256 wad) public note {
-        uint256 wad18 = mul(wad, 10 ** (18 - dec));
-        require(int256(wad18) >= 0, "GemJoin5/overflow");
-        vat.slip(ilk, msg.sender, -int256(wad18));
-        require(gem.transfer(guy, wad), "GemJoin5/failed-transfer");
+    function exit(address guy, uint256 amt) public note {
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(int256(wad) >= 0, "GemJoin5/overflow");
+        vat.slip(ilk, msg.sender, -int256(wad));
+        require(gem.transfer(guy, amt), "GemJoin5/failed-transfer");
     }
 }
