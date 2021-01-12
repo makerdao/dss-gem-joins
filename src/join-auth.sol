@@ -20,17 +20,7 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
-interface VatLike {
-    function slip(bytes32, address, int256) external;
-}
-
-interface GemLike {
-    function decimals() external view returns (uint256);
-    function transfer(address, uint256) external returns (bool);
-    function transferFrom(address, address, uint256) external returns (bool);
-}
+import "./deps.sol";
 
 // For a token that needs restriction on the sources which are able to execute the join function (like SAI through Migration contract)
 

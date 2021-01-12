@@ -20,16 +20,7 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
-interface VatLike {
-    function slip(bytes32, address, int256) external;
-}
-
-interface GemLike {
-    function transfer(address, uint256) external returns (bool);
-    function transferFrom(address, address, uint256) external returns (bool);
-}
+import "./deps.sol";
 
 // For a token that has a lower precision than 18 and doesn't have decimals field in place (like DGD)
 

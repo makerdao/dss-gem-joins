@@ -20,18 +20,14 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
+import "./deps.sol";
 
-interface VatLike {
-    function slip(bytes32, address, int256) external;
-}
-
-interface GemLike {
-    function decimals() external view returns (uint256);
-    function balanceOf(address) external returns (uint256);
+interface GemLike6 {
     function transfer(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
     function implementation() external view returns (address);
+    function balanceOf(address) external view returns (uint256);
+    function decimals() external view returns (uint256);
 }
 
 // For a token with a proxy and implementation contract (like tUSD)
@@ -48,11 +44,11 @@ contract GemJoin6 is LibNote {
         _;
     }
 
-    VatLike public vat;
-    bytes32 public ilk;
-    GemLike public gem;
-    uint256 public dec;
-    uint256 public live;  // Access Flag
+    VatLike  public vat;
+    bytes32  public ilk;
+    GemLike6 public gem;
+    uint256  public dec;
+    uint256  public live;  // Access Flag
 
     mapping (address => uint256) public implementations;
 
@@ -61,7 +57,7 @@ contract GemJoin6 is LibNote {
         live = 1;
         vat = VatLike(vat_);
         ilk = ilk_;
-        gem = GemLike(gem_);
+        gem = GemLike6(gem_);
         setImplementation(gem.implementation(), 1);
         dec = gem.decimals();
     }

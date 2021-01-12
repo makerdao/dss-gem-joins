@@ -20,17 +20,7 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
-interface VatLike {
-    function slip(bytes32, address, int256) external;
-}
-
-interface GemLike {
-    function decimals() external view returns (uint256);
-    function balanceOf(address) external returns (uint256);
-    function transfer(address, uint256) external returns (bool);
-}
+import "./deps.sol";
 
 // For tokens that do not implement transferFrom (like GNT), meaning the usual adapter
 // approach won't work: the adapter cannot call transferFrom and therefore

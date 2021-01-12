@@ -20,16 +20,12 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
+import "./deps.sol";
 
-interface VatLike {
-    function slip(bytes32, address, int256) external;
-}
-
-interface GemLike {
-    function decimals() external view returns (uint8);
-    function transfer(address,uint256) external returns (bool);
-    function transferFrom(address,address,uint256) external returns (bool);
+interface GemLike8 {
+    function transfer(address, uint256) external returns (bool);
+    function transferFrom(address, address, uint256) external returns (bool);
+    function decimals() external view returns (uint256);
     function erc20Impl() external view returns (address);
 }
 
@@ -45,14 +41,14 @@ contract GemJoin8 is LibNote {
 
     VatLike  public vat;
     bytes32  public ilk;
-    GemLike  public gem;
+    GemLike8 public gem;
     uint256  public dec;
     uint256  public live;  // Access Flag
 
     mapping (address => uint256) public implementations;
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
-        gem = GemLike(gem_);
+        gem = GemLike8(gem_);
         dec = gem.decimals();
         require(dec < 18, "GemJoin8/decimals-18-or-higher");
         wards[msg.sender] = 1;
