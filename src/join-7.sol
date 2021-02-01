@@ -82,21 +82,21 @@ contract GemJoin7 is LibNote {
         require((z = x - y) <= x, "GemJoin7/underflow");
     }
 
-    function join(address urn, uint256 wad) public note {
+    function join(address urn, uint256 amt) public note {
         require(live == 1, "GemJoin7/not-live");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
         uint256 bal = gem.balanceOf(address(this));
-        gem.transferFrom(msg.sender, address(this), wad);
-        uint256 wadt = mul(sub(gem.balanceOf(address(this)), bal), 10 ** (18 - dec));
-        require(int256(wadt) >= 0, "GemJoin7/overflow");
-        vat.slip(ilk, urn, int256(wadt));
+        gem.transferFrom(msg.sender, address(this), amt);
+        uint256 wad = mul(sub(gem.balanceOf(address(this)), bal), 10 ** (18 - dec));
+        require(int256(wad) >= 0, "GemJoin7/overflow");
+        vat.slip(ilk, urn, int256(wad));
     }
 
-    function exit(address guy, uint256 wad) public note {
-        uint256 wad18 = mul(wad, 10 ** (18 - dec));
-        require(int256(wad18) >= 0, "GemJoin7/overflow");
+    function exit(address guy, uint256 amt) public note {
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(int256(wad) >= 0, "GemJoin7/overflow");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
-        vat.slip(ilk, msg.sender, -int256(wad18));
-        gem.transfer(guy, wad);
+        vat.slip(ilk, msg.sender, -int256(wad));
+        gem.transfer(guy, amt);
     }
 }
