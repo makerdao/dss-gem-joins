@@ -29,4 +29,4 @@ Note: `dss-gem-joins` is not reflective of supported Collateral Types on the mai
 |UNI|GemJoin|
 |RENBTC|GemJoin5|
 |AAVE|GemJoin|
-|PAXG|GemJoin9|
+|PAXG|WrappedGem+GemJoin|
