@@ -789,6 +789,31 @@ contract DssDeployTest is DssDeployTestBase {
         paxgJoin.exit(address(this), 100 * 10 ** 18);
     }
 
+    function testGemJoin9JoinDirectFee() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+        PAXG paxg = new PAXG(100 * 10 ** 18);
+        GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
+        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 0);
+        assertEq(vat.gem("PAXG", address(this)), 0);
+        assertEq(paxg.balanceOf(paxg.feeRecipient()), 0);
+        paxg.setFeeRate(40000);     // 4%
+        paxg.transfer(address(paxgJoin), 100 * 10 ** 18);
+        paxgJoin.join(address(this));
+        assertEq(paxg.balanceOf(address(this)), 0);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 96 * 10 ** 18);
+        assertEq(vat.gem("PAXG", address(this)), 96 * 10 ** 18);
+        assertEq(paxg.balanceOf(paxg.feeRecipient()), 4 * 10 ** 18);
+        paxg.setFeeRate(250000);     // 25%
+        paxgJoin.exit(address(this), 96 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(this)), 72 * 10 ** 18);
+        assertEq(paxg.balanceOf(address(paxgJoin)), 0);
+        assertEq(vat.gem("PAXG", address(this)), 0);
+        assertEq(paxg.balanceOf(paxg.feeRecipient()), 28 * 10 ** 18);
+    }
+
     function testFailJoinAfterCageGemJoin2() public {
         deployKeepAuth();
         DSValue pip = new DSValue();

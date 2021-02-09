@@ -70,17 +70,16 @@ contract GemJoin9 is LibNote {
     function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x - y) <= x);
     }
-    // Allow dss-proxy-actions to receive the gems with only 1 transfer
+    // Allow dss-proxy-actions to send the gems with only 1 transfer
     // This should be called via token.transfer() followed by gemJoin.join() atomically or
     // someone else can steal your tokens
     function join(address usr) external note {
         require(live == 1, "GemJoin/not-live");
 
         uint256 wad = sub(gem.balanceOf(address(this)), total);
-        uint256 sad = sub(wad, gem.getFeeFor(wad));
-        require(int256(sad) >= 0, "GemJoin/overflow");
+        require(int256(wad) >= 0, "GemJoin/overflow");
 
-        vat.slip(ilk, usr, int256(sad));
+        vat.slip(ilk, usr, int256(wad));
         total = add(total, wad);
     }
     function join(address usr, uint256 wad) external note {
@@ -90,14 +89,14 @@ contract GemJoin9 is LibNote {
         require(int256(sad) >= 0, "GemJoin/overflow");
 
         vat.slip(ilk, usr, int256(sad));
-        total = add(total, wad);
+        total = add(total, sad);
 
         uint256 bal = gem.balanceOf(address(this));
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
         require(sub(gem.balanceOf(address(this)), bal) == sad, "GemJoin/bad-fee");
     }
     function exit(address usr, uint256 wad) external note {
-        require(int256(wad) >= 0, "GemJoin/overflow");
+        require(wad <= 2 ** 255, "GemJoin/overflow");
 
         vat.slip(ilk, msg.sender, -int256(wad));
         total = sub(total, wad);
