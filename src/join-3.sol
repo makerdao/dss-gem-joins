@@ -64,18 +64,18 @@ contract GemJoin3 is LibNote {
         require(y == 0 || (z = x * y) / y == x, "GemJoin3/overflow");
     }
 
-    function join(address urn, uint256 wad) public note {
+    function join(address urn, uint256 amt) public note {
         require(live == 1, "GemJoin3/not-live");
-        uint256 wad18 = mul(wad, 10 ** (18 - dec));
-        require(wad18 <= 2 ** 255, "GemJoin3/overflow");
-        vat.slip(ilk, urn, int256(wad18));
-        require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin3/failed-transfer");
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(wad <= 2 ** 255, "GemJoin3/overflow");
+        vat.slip(ilk, urn, int256(wad));
+        require(gem.transferFrom(msg.sender, address(this), amt), "GemJoin3/failed-transfer");
     }
 
-    function exit(address guy, uint256 wad) public note {
-        uint256 wad18 = mul(wad, 10 ** (18 - dec));
-        require(wad18 <= 2 ** 255, "GemJoin3/overflow");
-        vat.slip(ilk, msg.sender, -int256(wad18));
-        require(gem.transfer(guy, wad), "GemJoin3/failed-transfer");
+    function exit(address guy, uint256 amt) public note {
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(wad <= 2 ** 255, "GemJoin3/overflow");
+        vat.slip(ilk, msg.sender, -int256(wad));
+        require(gem.transfer(guy, amt), "GemJoin3/failed-transfer");
     }
 }

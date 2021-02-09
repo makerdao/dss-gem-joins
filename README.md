@@ -26,4 +26,7 @@ Note: `dss-gem-joins` is not reflective of supported Collateral Types on the mai
 |BAL|GemJoin|
 |YFI|GemJoin|
 |GUSD|GemJoin8|
+|UNI|GemJoin|
+|RENBTC|GemJoin5|
+|AAVE|GemJoin|
 |PAXG|GemJoin9|

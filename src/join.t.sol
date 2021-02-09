@@ -12,6 +12,7 @@ import {GemJoin8} from "./join-8.sol";
 import {GemJoin9} from "./join-9.sol";
 import {AuthGemJoin} from "./join-auth.sol";
 
+import "./tokens/AAVE.sol";
 import "./tokens/BAL.sol";
 import "./tokens/BAT.sol";
 import "./tokens/COMP.sol";
@@ -25,8 +26,10 @@ import "./tokens/MANA.sol";
 import "./tokens/OMG.sol";
 import "./tokens/PAXG.sol";
 import "./tokens/PAXUSD.sol";
+import "./tokens/RENBTC.sol";
 import "./tokens/REP.sol";
 import "./tokens/TUSD.sol";
+import "./tokens/UNI.sol";
 import "./tokens/USDC.sol";
 import "./tokens/USDT.sol";
 import "./tokens/WBTC.sol";
@@ -357,6 +360,52 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(vat.gem("COMP", address(this)), 6 ether);
     }
 
+    function testGemJoin_UNI() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        UNI uni = new UNI(100 ether);
+        GemJoin uniJoin = new GemJoin(address(vat), "UNI", address(uni));
+        assertEq(uniJoin.dec(), 18);
+
+        dssDeploy.deployCollateral("UNI", address(uniJoin), address(pip));
+
+        uni.approve(address(uniJoin), uint256(-1));
+        assertEq(uni.balanceOf(address(this)), 100 ether);
+        assertEq(uni.balanceOf(address(uniJoin)), 0);
+        assertEq(vat.gem("UNI", address(this)), 0);
+        uniJoin.join(address(this), 10 ether);
+        assertEq(uni.balanceOf(address(uniJoin)), 10 ether);
+        assertEq(vat.gem("UNI", address(this)), 10 ether);
+        uniJoin.exit(address(this), 4 ether);
+        assertEq(uni.balanceOf(address(this)), 94 ether);
+        assertEq(uni.balanceOf(address(uniJoin)), 6 ether);
+        assertEq(vat.gem("UNI", address(this)), 6 ether);
+    }
+
+    function testGemJoin_AAVE() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        AAVE aave = new AAVE(100 * 10**18);
+        GemJoin aaveJoin = new GemJoin(address(vat), "AAVE", address(aave));
+        assertEq(aaveJoin.dec(), 18);
+
+        dssDeploy.deployCollateral("AAVE", address(aaveJoin), address(pip));
+
+        aave.approve(address(aaveJoin), uint256(-1));
+        assertEq(aave.balanceOf(address(this)), 100 * 10**18);
+        assertEq(aave.balanceOf(address(aaveJoin)), 0);
+        assertEq(vat.gem("AAVE", address(this)), 0);
+        aaveJoin.join(address(this), 10 * 10**18);
+        assertEq(aave.balanceOf(address(aaveJoin)), 10 * 10**18);
+        assertEq(vat.gem("AAVE", address(this)), 10 * 10**18);
+        aaveJoin.exit(address(this), 4 * 10**18);
+        assertEq(aave.balanceOf(address(this)), 94 * 10**18);
+        assertEq(aave.balanceOf(address(aaveJoin)), 6 * 10**18);
+        assertEq(vat.gem("AAVE", address(this)), 6 * 10**18);
+    }
+
     function testGemJoin_LRC() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
@@ -455,7 +504,6 @@ contract DssDeployTest is DssDeployTestBase {
 
         GUSD gusd = new GUSD(100 * 10 ** 2);
         GemJoin8 gusdJoin = new GemJoin8(address(vat), "GUSD", address(gusd));
-        gusdJoin.setImplementation(address(gusd), 1);
         assertEq(gusdJoin.dec(), 2);
 
         dssDeploy.deployCollateral("GUSD", address(gusdJoin), address(pip));
@@ -493,6 +541,29 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(paxg.balanceOf(address(this)), 94 * 10 ** 18);
         assertEq(paxg.balanceOf(address(paxgJoin)), 6 * 10 ** 18);
         assertEq(vat.gem("PAXG", address(this)), 6 ether);
+    }
+
+    function testGemJoin5_RENBTC() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        RENBTC renbtc = new RENBTC(100 * 10 ** 8);
+        GemJoin5 renbtcJoin = new GemJoin5(address(vat), "RENBTC", address(renbtc));
+        assertEq(renbtcJoin.dec(), 8);
+
+        dssDeploy.deployCollateral("RENBTC", address(renbtcJoin), address(pip));
+
+        renbtc.approve(address(renbtcJoin), uint256(-1));
+        assertEq(renbtc.balanceOf(address(this)), 100 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(renbtcJoin)), 0);
+        assertEq(vat.gem("RENBTC", address(this)), 0);
+        renbtcJoin.join(address(this), 10 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(renbtcJoin)), 10 * 10 ** 8);
+        assertEq(vat.gem("RENBTC", address(this)), 10 ether);
+        renbtcJoin.exit(address(this), 4 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(this)), 94 * 10 ** 8);
+        assertEq(renbtc.balanceOf(address(renbtcJoin)), 6 * 10 ** 8);
+        assertEq(vat.gem("RENBTC", address(this)), 6 ether);
     }
 
     function testFailGemJoin6Join() public {
