@@ -73,7 +73,7 @@ contract GemJoin9 is LibNote {
     // Allow dss-proxy-actions to send the gems with only 1 transfer
     // This should be called via token.transfer() followed by gemJoin.join() atomically or
     // someone else can steal your tokens
-    function join(address usr) external note {
+    function join(address usr) external note returns (uint256) {
         require(live == 1, "GemJoin/not-live");
 
         uint256 wad = sub(gem.balanceOf(address(this)), total);
@@ -81,6 +81,8 @@ contract GemJoin9 is LibNote {
 
         vat.slip(ilk, usr, int256(wad));
         total = add(total, wad);
+
+        return wad;
     }
     function join(address usr, uint256 wad) external note {
         require(live == 1, "GemJoin/not-live");
