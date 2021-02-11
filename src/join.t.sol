@@ -763,6 +763,7 @@ contract DssDeployTest is DssDeployTestBase {
         paxgJoin.join(address(this), 100 * 10 ** 18);
         assertEq(paxg.balanceOf(address(this)), 0);
         assertEq(paxg.balanceOf(address(paxgJoin)), 96 * 10 ** 18);
+        assertEq(paxgJoin.total(), paxg.balanceOf(address(paxgJoin)));
         assertEq(vat.gem("PAXG", address(this)), 96 * 10 ** 18);
         assertEq(paxg.balanceOf(paxg.feeRecipient()), 4 * 10 ** 18);
         paxg.setFeeRate(250000);     // 25%
@@ -771,6 +772,7 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(paxg.balanceOf(address(paxgJoin)), 0);
         assertEq(vat.gem("PAXG", address(this)), 0);
         assertEq(paxg.balanceOf(paxg.feeRecipient()), 28 * 10 ** 18);
+        assertEq(paxgJoin.total(), paxg.balanceOf(address(paxgJoin)));
     }
 
     function testFailGemJoin9JoinFee() public {
@@ -806,12 +808,14 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(paxg.balanceOf(address(paxgJoin)), 96 * 10 ** 18);
         assertEq(vat.gem("PAXG", address(this)), 96 * 10 ** 18);
         assertEq(paxg.balanceOf(paxg.feeRecipient()), 4 * 10 ** 18);
+        assertEq(paxgJoin.total(), paxg.balanceOf(address(paxgJoin)));
         paxg.setFeeRate(250000);     // 25%
         paxgJoin.exit(address(this), 96 * 10 ** 18);
         assertEq(paxg.balanceOf(address(this)), 72 * 10 ** 18);
         assertEq(paxg.balanceOf(address(paxgJoin)), 0);
         assertEq(vat.gem("PAXG", address(this)), 0);
         assertEq(paxg.balanceOf(paxg.feeRecipient()), 28 * 10 ** 18);
+        assertEq(paxgJoin.total(), paxg.balanceOf(address(paxgJoin)));
     }
 
     function testFailJoinAfterCageGemJoin2() public {

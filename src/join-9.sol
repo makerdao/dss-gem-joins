@@ -31,7 +31,6 @@ interface GemLike {
     function decimals() external view returns (uint8);
     function transfer(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
-    function getFeeFor(uint256) external returns (uint256);
 }
 
 // For a token that has a fee (PAXG)
@@ -73,29 +72,21 @@ contract GemJoin9 is LibNote {
     // Allow dss-proxy-actions to send the gems with only 1 transfer
     // This should be called via token.transfer() followed by gemJoin.join() atomically or
     // someone else can steal your tokens
-    function join(address usr) external note returns (uint256) {
+    function join(address usr) public note returns (uint256) {
         require(live == 1, "GemJoin/not-live");
 
-        uint256 wad = sub(gem.balanceOf(address(this)), total);
+        uint256 _total = total;     // Cache to save an SLOAD
+        uint256 wad = sub(gem.balanceOf(address(this)), _total);
         require(int256(wad) >= 0, "GemJoin/overflow");
 
         vat.slip(ilk, usr, int256(wad));
-        total = add(total, wad);
+        total = add(_total, wad);
 
         return wad;
     }
     function join(address usr, uint256 wad) external note {
-        require(live == 1, "GemJoin/not-live");
-
-        uint256 sad = sub(wad, gem.getFeeFor(wad));
-        require(int256(sad) >= 0, "GemJoin/overflow");
-
-        vat.slip(ilk, usr, int256(sad));
-        total = add(total, sad);
-
-        uint256 bal = gem.balanceOf(address(this));
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
-        require(sub(gem.balanceOf(address(this)), bal) == sad, "GemJoin/bad-fee");
+        join(usr);
     }
     function exit(address usr, uint256 wad) external note {
         require(wad <= 2 ** 255, "GemJoin/overflow");
