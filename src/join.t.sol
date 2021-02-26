@@ -925,6 +925,22 @@ contract DssDeployTest is DssDeployTestBase {
         gusdJoin.join(address(this), 10);
     }
 
+    function testFailJoinAfterCageGemJoin9() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        PAXG paxg = new PAXG(100 * 10 ** 18);
+        GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
+
+        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+
+        paxg.approve(address(paxgJoin), uint256(-1));
+        paxgJoin.join(address(this), 100 * 10 ** 18);
+        paxgJoin.cage();
+        // Fail here
+        paxgJoin.join(address(this), 100 * 10 ** 18);
+    }
+
     function testFailJoinAfterCageAuthGemJoin() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
