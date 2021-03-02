@@ -84,7 +84,7 @@ contract GemJoin9 is LibNote {
 
         return wad;
     }
-    function join(address usr, uint256 wad) external note {
+    function join(address usr, uint256 wad) external {
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
         join(usr);
     }
