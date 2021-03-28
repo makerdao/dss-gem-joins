@@ -41,7 +41,7 @@ contract PAXG {
 
     uint256 public constant feeParts = 1000000;
     uint256 public feeRate;
-    address public feeRecipient = 0x74271F2282eD7eE35c166122A60c9830354be42a;       // Doesn't really matter where the fees go
+    address public feeRecipient = 0x57aAeAE905376a4B1899bA81364b4cE2519CBfB3;       // Doesn't really matter where the fees go (send to faucet)
 
     constructor(uint256 supply) public {
         _balances[msg.sender] = supply;
@@ -73,11 +73,11 @@ contract PAXG {
 
         require(_balances[src] >= wad, "insufficient-balance");
         uint256 _fee = getFeeFor(wad);
-        uint256 _principle = sub(wad, _fee);
+        uint256 _principal = sub(wad, _fee);
         _balances[src] = sub(_balances[src], wad);
-        _balances[dst] = add(_balances[dst], _principle);
+        _balances[dst] = add(_balances[dst], _principal);
 
-        emit Transfer(src, dst, _principle);
+        emit Transfer(src, dst, _principal);
         emit Transfer(src, feeRecipient, _fee);
 
         if (_fee > 0) {
