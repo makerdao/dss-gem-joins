@@ -43,9 +43,11 @@ contract PAXG {
     uint256 public feeRate;
     address public feeRecipient = 0x57aAeAE905376a4B1899bA81364b4cE2519CBfB3;       // Doesn't really matter where the fees go (send to faucet)
 
-    constructor(uint256 supply) public {
+    constructor(uint256 supply, uint256 fee) public {
         _balances[msg.sender] = supply;
         _supply = supply;
+
+        setFeeRate(fee);
     }
 
     function totalSupply() public view returns (uint256) {
@@ -96,7 +98,7 @@ contract PAXG {
         return true;
     }
 
-    function setFeeRate(uint256 _newFeeRate) public {
+    function setFeeRate(uint256 _newFeeRate) internal {
         require(_newFeeRate <= feeParts, "cannot set fee rate above 100%");
         uint256 _oldFeeRate = feeRate;
         feeRate = _newFeeRate;
