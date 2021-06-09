@@ -20,8 +20,6 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
@@ -41,10 +39,10 @@ interface GemLike {
 //  If the token is deprecated changing the implementation behind, this prevents joins
 //   and exits until the implementation is reviewed and approved by governance.
 
-contract GemJoin7 is LibNote {
+contract GemJoin7 {
     mapping (address => uint256) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) external auth { wards[usr] = 1; }
+    function deny(address usr) external auth { wards[usr] = 0; }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -66,11 +64,11 @@ contract GemJoin7 is LibNote {
         setImplementation(address(gem.upgradedAddress()), 1);
     }
 
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
     }
 
-    function setImplementation(address implementation, uint256 permitted) public auth note {
+    function setImplementation(address implementation, uint256 permitted) public auth {
         implementations[implementation] = permitted; // 1 live, 0 disable
     }
 
@@ -82,7 +80,7 @@ contract GemJoin7 is LibNote {
         require((z = x - y) <= x, "GemJoin7/underflow");
     }
 
-    function join(address urn, uint256 amt) public note {
+    function join(address urn, uint256 amt) public {
         require(live == 1, "GemJoin7/not-live");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
         uint256 bal = gem.balanceOf(address(this));
@@ -92,7 +90,7 @@ contract GemJoin7 is LibNote {
         vat.slip(ilk, urn, int256(wad));
     }
 
-    function exit(address guy, uint256 amt) public note {
+    function exit(address guy, uint256 amt) public {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin7/overflow");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
