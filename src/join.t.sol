@@ -751,7 +751,7 @@ contract DssDeployTest is DssDeployTestBase {
 
     function testFailJoinAfterCageGemJoin5() public {
         deployKeepAuth();
-        DSValue pip = new DSValue();// For a token that needs restriction on the sources which are able to execute the join function (like SAI through Migration contract)
+        DSValue pip = new DSValue();
 
 
         USDC usdc = new USDC(100 ether);
