@@ -10,6 +10,7 @@ import {GemJoin6} from "./join-6.sol";
 import {GemJoin7} from "./join-7.sol";
 import {GemJoin8} from "./join-8.sol";
 import {AuthGemJoin} from "./join-auth.sol";
+import {PermissionedGemJoin} from "./join-permissioned.sol";
 
 import "./tokens/AAVE.sol";
 import "./tokens/BAL.sol";
@@ -750,7 +751,8 @@ contract DssDeployTest is DssDeployTestBase {
 
     function testFailJoinAfterCageGemJoin5() public {
         deployKeepAuth();
-        DSValue pip = new DSValue();
+        DSValue pip = new DSValue();// For a token that needs restriction on the sources which are able to execute the join function (like SAI through Migration contract)
+
 
         USDC usdc = new USDC(100 ether);
         GemJoin5 usdcJoin = new GemJoin5(address(vat), "USDC", address(usdc));
@@ -860,5 +862,66 @@ contract DssDeployTest is DssDeployTestBase {
         sai.approve(address(saiJoin), uint256(-1));
         saiJoin.deny(address(this));
         saiJoin.join(address(this), 10);
+    }
+
+    function testFailJoinAfterCagePermissionedGemJoin() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        DSToken wbtc = new DSToken("WBTC");
+        wbtc.mint(20);
+        PermissionedGemJoin wbtcJoin = new PermissionedGemJoin(address(vat), "WBTC", address(wbtc));
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.join(address(this), 10);
+        wbtcJoin.cage();
+        wbtcJoin.join(address(this), 10);
+    }
+
+    function testJoinPermissionedGemJoin() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        DSToken wbtc = new DSToken("WBTC");
+        wbtc.mint(20);
+        PermissionedGemJoin wbtcJoin = new PermissionedGemJoin(address(vat), "WBTC", address(wbtc));
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.kiss(address(this));
+        wbtcJoin.join(address(this), 10);
+    }
+
+    function testFailJoinPermissionedGemJoinNotAllowed() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        DSToken wbtc = new DSToken("WBTC");
+        wbtc.mint(20);
+        PermissionedGemJoin wbtcJoin = new PermissionedGemJoin(address(vat), "WBTC", address(wbtc));
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.join(address(this), 10);
+    }
+
+    function testFailJoinPermissionedGemJoinDissed() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        DSToken wbtc = new DSToken("WBTC");
+        wbtc.mint(20);
+        PermissionedGemJoin wbtcJoin = new PermissionedGemJoin(address(vat), "WBTC", address(wbtc));
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.kiss(address(this));
+        wbtcJoin.diss(address(this));
+        wbtcJoin.join(address(this), 10);
     }
 }
