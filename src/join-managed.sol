@@ -58,16 +58,22 @@ contract AuthGemJoin {
         live = 0;
     }
 
-    function join(address usr, uint256 wad) public auth {
-        require(live == 1, "AuthGemJoin/not-live");
-        require(int256(wad) >= 0, "AuthGemJoin/overflow");
-        vat.slip(ilk, usr, int256(wad));
-        require(gem.transferFrom(msg.sender, address(this), wad), "AuthGemJoin/failed-transfer");
+    function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
+        require(y == 0 || (z = x * y) / y == x, "GemJoin5/overflow");
     }
 
-    function exit(address usr, uint256 wad) public {
-        require(wad <= 2 ** 255, "AuthGemJoin/overflow");
-        vat.slip(ilk, msg.sender, -int256(wad));
-        require(gem.transfer(usr, wad), "AuthGemJoin/failed-transfer");
+    function join(address urn, uint256 amt) public auth {
+        require(live == 1, "AuthGemJoin/not-live");
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(int256(wad) >= 0, "AuthGemJoin/overflow");
+        vat.slip(ilk, urn, int256(wad));
+        require(gem.transferFrom(msg.sender, address(this), amt), "AuthGemJoin/failed-transfer");
+    }
+
+    function exit(address urn, address usr, uint256 amt) public auth {
+        uint256 wad = mul(amt, 10 ** (18 - dec));
+        require(int256(wad) >= 0, "AuthGemJoin/overflow");
+        vat.slip(ilk, urn, -int256(wad));
+        require(gem.transfer(usr, amt), "AuthGemJoin/failed-transfer");
     }
 }
