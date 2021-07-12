@@ -30,9 +30,9 @@ interface GemLike {
     function transferFrom(address, address, uint256) external returns (bool);
 }
 
-// For a token that needs restriction on the sources which are able to execute the join function (like SAI through Migration contract)
+// For a token that needs join/exit to be managed (like in permissioned vaults)
 
-contract AuthGemJoin {
+contract ManagedGemJoin {
     VatLike public vat;
     bytes32 public ilk;
     GemLike public gem;
@@ -43,7 +43,7 @@ contract AuthGemJoin {
     mapping (address => uint256) public wards;
     function rely(address usr) public auth { wards[usr] = 1; }
     function deny(address usr) public auth { wards[usr] = 0; }
-    modifier auth { require(wards[msg.sender] == 1, "AuthGemJoin/non-authed"); _; }
+    modifier auth { require(wards[msg.sender] == 1, "ManagedGemJoin/non-authed"); _; }
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
         wards[msg.sender] = 1;
@@ -59,21 +59,21 @@ contract AuthGemJoin {
     }
 
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require(y == 0 || (z = x * y) / y == x, "GemJoin5/overflow");
+        require(y == 0 || (z = x * y) / y == x, "ManagedGemJoin/overflow");
     }
 
     function join(address urn, uint256 amt) public auth {
-        require(live == 1, "AuthGemJoin/not-live");
+        require(live == 1, "ManagedGemJoin/not-live");
         uint256 wad = mul(amt, 10 ** (18 - dec));
-        require(int256(wad) >= 0, "AuthGemJoin/overflow");
+        require(int256(wad) >= 0, "ManagedGemJoin/overflow");
         vat.slip(ilk, urn, int256(wad));
-        require(gem.transferFrom(msg.sender, address(this), amt), "AuthGemJoin/failed-transfer");
+        require(gem.transferFrom(msg.sender, address(this), amt), "ManagedGemJoin/failed-transfer");
     }
 
     function exit(address urn, address usr, uint256 amt) public auth {
         uint256 wad = mul(amt, 10 ** (18 - dec));
-        require(int256(wad) >= 0, "AuthGemJoin/overflow");
+        require(int256(wad) >= 0, "ManagedGemJoin/overflow");
         vat.slip(ilk, urn, -int256(wad));
-        require(gem.transfer(usr, amt), "AuthGemJoin/failed-transfer");
+        require(gem.transfer(usr, amt), "ManagedGemJoin/failed-transfer");
     }
 }
