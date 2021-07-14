@@ -18,7 +18,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity >=0.5.12;
+pragma solidity >=0.6.12;
 
 interface VatLike {
     function urns(bytes32, address) external view returns (uint256, uint256);
@@ -36,10 +36,10 @@ interface GemLike {
 // For a token that needs join/exit to be managed (like in permissioned vaults)
 
 contract ManagedGemJoin {
-    VatLike public vat;
-    bytes32 public ilk;
-    GemLike public gem;
-    uint256 public dec;
+    VatLike public immutable vat;
+    bytes32 public immutable ilk;
+    GemLike public immutable gem;
+    uint256 public immutable dec;
     uint256 public live;  // Access Flag
 
     // --- Auth ---
@@ -54,7 +54,7 @@ contract ManagedGemJoin {
         vat = VatLike(vat_);
         ilk = ilk_;
         gem = GemLike(gem_);
-        dec = gem.decimals();
+        dec = GemLike(gem_).decimals();
     }
 
     function cage() external auth {
