@@ -44,9 +44,16 @@ contract ManagedGemJoin {
 
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) public auth { wards[usr] = 1; }
-    function deny(address usr) public auth { wards[usr] = 0; }
+
+    function rely(address usr) external auth { wards[usr] = 1; emit Rely(usr); }
+    function deny(address usr) external auth { wards[usr] = 0; emit Deny(usr); }
     modifier auth { require(wards[msg.sender] == 1, "ManagedGemJoin/non-authed"); _; }
+
+    // --- Events ---
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed urn, uint256 amt);
+    event Exit(address indexed urn, address indexed usr, uint256 amt);
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
         wards[msg.sender] = 1;
@@ -71,6 +78,7 @@ contract ManagedGemJoin {
         require(int256(wad) >= 0, "ManagedGemJoin/overflow");
         vat.slip(ilk, urn, int256(wad));
         require(gem.transferFrom(msg.sender, address(this), amt), "ManagedGemJoin/failed-transfer");
+        emit Join(urn, amt);
     }
 
     function exit(address urn, address usr, uint256 amt) public auth {
@@ -78,5 +86,6 @@ contract ManagedGemJoin {
         require(int256(wad) >= 0, "ManagedGemJoin/overflow");
         vat.slip(ilk, urn, -int256(wad));
         require(gem.transfer(usr, amt), "ManagedGemJoin/failed-transfer");
+        emit Exit(urn, usr, amt);
     }
 }
