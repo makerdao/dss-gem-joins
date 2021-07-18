@@ -953,5 +953,6 @@ contract DssDeployTest is DssDeployTestBase {
         wbtcJoin.exit(address(this), address(this), 4);
         assertEq(wbtc.balanceOf(address(wbtcJoin)), 6);
         assertEq(vat.gem("WBTC", address(this)), 6);
+        assertEq(wbtc.balanceOf(address(this)), 4);
     }
 }
