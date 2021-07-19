@@ -56,12 +56,13 @@ contract ManagedGemJoin {
     event Exit(address indexed urn, address indexed usr, uint256 amt);
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
-        wards[msg.sender] = 1;
         live = 1;
         vat = VatLike(vat_);
         ilk = ilk_;
         gem = GemLike(gem_);
         dec = GemLike(gem_).decimals();
+        wards[msg.sender] = 1;
+        emit Rely(msg.sender);
     }
 
     function cage() external auth {
