@@ -705,9 +705,9 @@ contract DssDeployTest is DssDeployTestBase {
     function testFailManagedGemJoinJoinWad() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
-        WBTC wbtc = new WBTC(100 * 10 ** 2);
+        WBTC wbtc = new WBTC(100 * 10 ** 8);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
-        dssDeploy.deployCollateral("GUSD", address(wbtcJoin), address(pip));
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
         wbtc.approve(address(wbtcJoin), uint256(-1));
         // Fail here
         wbtcJoin.join(address(this), 10 ether);
@@ -716,11 +716,11 @@ contract DssDeployTest is DssDeployTestBase {
     function testFailManagedGemJoinExitWad() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
-        WBTC wbtc = new WBTC(100 * 10 ** 2);
+        WBTC wbtc = new WBTC(100 * 10 ** 8);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
         dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
         wbtc.approve(address(wbtcJoin), uint256(-1));
-        wbtcJoin.join(address(this), 10 * 10 ** 2);
+        wbtcJoin.join(address(this), 10 * 10 ** 8);
         // Fail here
         wbtcJoin.exit(address(this), address(this), 10 ether);
     }
