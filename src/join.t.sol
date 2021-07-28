@@ -933,26 +933,25 @@ contract DssDeployTest is DssDeployTestBase {
         saiJoin.join(address(this), 10);
     }
 
-    function testTokenManaged() public {
+    function testManagedGemJoin_WBTC() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
 
-        DSToken wbtc = new DSToken("WBTC");
-        wbtc.mint(10);
+        WBTC wbtc = new WBTC(10 * 10 ** 8);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
-        assertEq(wbtcJoin.dec(), 18);
+        assertEq(wbtcJoin.dec(), 8);
 
         dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
 
         wbtc.approve(address(wbtcJoin), uint256(-1));
         assertEq(wbtc.balanceOf(address(wbtcJoin)), 0);
         assertEq(vat.gem("WBTC", address(this)), 0);
-        wbtcJoin.join(address(this), 10);
-        assertEq(wbtc.balanceOf(address(wbtcJoin)), 10);
-        assertEq(vat.gem("WBTC", address(this)), 10);
-        wbtcJoin.exit(address(this), address(this), 4);
-        assertEq(wbtc.balanceOf(address(wbtcJoin)), 6);
-        assertEq(vat.gem("WBTC", address(this)), 6);
-        assertEq(wbtc.balanceOf(address(this)), 4);
+        wbtcJoin.join(address(this), 10 * 10 ** 8);
+        assertEq(wbtc.balanceOf(address(wbtcJoin)), 10 * 10 ** 8);
+        assertEq(vat.gem("WBTC", address(this)), 10 * 10 ** 18);
+        wbtcJoin.exit(address(this), address(this), 4 * 10 ** 8);
+        assertEq(wbtc.balanceOf(address(wbtcJoin)), 6 * 10 ** 8);
+        assertEq(vat.gem("WBTC", address(this)), 6 * 10 ** 18);
+        assertEq(wbtc.balanceOf(address(this)), 4 * 10 ** 8);
     }
 }
