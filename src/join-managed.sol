@@ -21,9 +21,6 @@
 pragma solidity >=0.6.12;
 
 interface VatLike {
-    function urns(bytes32, address) external view returns (uint256, uint256);
-    function dai(address) external view returns (uint256);
-    function gem(bytes32, address) external view returns (uint256);
     function slip(bytes32, address, int256) external;
 }
 
