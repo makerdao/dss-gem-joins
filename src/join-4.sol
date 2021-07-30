@@ -20,8 +20,6 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
@@ -60,11 +58,11 @@ contract GemBag {
     }
 }
 
-contract GemJoin4 is LibNote {
+contract GemJoin4 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) external auth { wards[usr] = 1; }
+    function deny(address usr) external auth { wards[usr] = 0; }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -84,7 +82,7 @@ contract GemJoin4 is LibNote {
         dec = gem.decimals();
     }
 
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
     }
 
@@ -93,7 +91,7 @@ contract GemJoin4 is LibNote {
         bag = make(msg.sender);
     }
 
-    function make(address usr) public note returns (address bag) {
+    function make(address usr) public returns (address bag) {
         require(bags[usr] == address(0), "GemJoin4/bag-already-exists");
 
         bag = address(new GemBag(address(usr), address(gem)));
@@ -101,7 +99,7 @@ contract GemJoin4 is LibNote {
     }
 
     // -- gems --
-    function join(address urn, uint256 wad) external note {
+    function join(address urn, uint256 wad) external {
         require(live == 1, "GemJoin4/not-live");
         require(int256(wad) >= 0, "GemJoin4/negative-amount");
 
@@ -109,7 +107,7 @@ contract GemJoin4 is LibNote {
         vat.slip(ilk, urn, int256(wad));
     }
 
-    function exit(address usr, uint256 wad) external note {
+    function exit(address usr, uint256 wad) external {
         require(int256(wad) >= 0, "GemJoin4/negative-amount");
 
         vat.slip(ilk, msg.sender, -int256(wad));

@@ -20,8 +20,6 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
@@ -34,11 +32,11 @@ interface GemLike {
 
 // For a token that has a lower precision than 18 and it has decimals (like USDC)
 
-contract GemJoin5 is LibNote {
+contract GemJoin5 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) external auth { wards[usr] = 1; }
+    function deny(address usr) external auth { wards[usr] = 0; }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -57,7 +55,7 @@ contract GemJoin5 is LibNote {
         ilk = ilk_;
     }
 
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
     }
 
@@ -65,7 +63,7 @@ contract GemJoin5 is LibNote {
         require(y == 0 || (z = x * y) / y == x, "GemJoin5/overflow");
     }
 
-    function join(address urn, uint256 amt) public note {
+    function join(address urn, uint256 amt) public {
         require(live == 1, "GemJoin5/not-live");
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin5/overflow");
@@ -73,7 +71,7 @@ contract GemJoin5 is LibNote {
         require(gem.transferFrom(msg.sender, address(this), amt), "GemJoin5/failed-transfer");
     }
 
-    function exit(address guy, uint256 amt) public note {
+    function exit(address guy, uint256 amt) public {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin5/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));
