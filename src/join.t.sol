@@ -10,6 +10,7 @@ import {GemJoin6} from "./join-6.sol";
 import {GemJoin7} from "./join-7.sol";
 import {GemJoin8} from "./join-8.sol";
 import {AuthGemJoin} from "./join-auth.sol";
+import {ManagedGemJoin} from "./join-managed.sol";
 
 import "./tokens/AAVE.sol";
 import "./tokens/BAL.sol";
@@ -701,6 +702,60 @@ contract DssDeployTest is DssDeployTestBase {
         gusdJoin.exit(address(this), 10 * 10 ** 2);
     }
 
+    function testFailManagedGemJoinJoinWad() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+        WBTC wbtc = new WBTC(100 * 10 ** 8);
+        ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        // Fail here
+        wbtcJoin.join(address(this), 10 ether);
+    }
+
+    function testFailManagedGemJoinExitWad() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+        WBTC wbtc = new WBTC(100 * 10 ** 8);
+        ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.join(address(this), 10 * 10 ** 8);
+        // Fail here
+        wbtcJoin.exit(address(this), address(this), 10 ether);
+    }
+
+    function testFailManagedGemJoinJoin() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        DSToken wbtc = new DSToken("WBTC");
+        wbtc.mint(10);
+        ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.deny(address(this));
+        wbtcJoin.join(address(this), 10);
+    }
+
+    function testFailManagedGemJoinExit() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        DSToken wbtc = new DSToken("WBTC");
+        wbtc.mint(10);
+        ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.join(address(this), 10);
+        wbtcJoin.deny(address(this));
+        wbtcJoin.exit(address(this), address(this), 10);
+    }
+
     function testFailJoinAfterCageGemJoin2() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
@@ -824,6 +879,22 @@ contract DssDeployTest is DssDeployTestBase {
         saiJoin.join(address(this), 10);
     }
 
+    function testFailJoinAfterCageManagedGemJoin() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        DSToken wbtc = new DSToken("WBTC");
+        wbtc.mint(20);
+        ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        wbtcJoin.join(address(this), 10);
+        wbtcJoin.cage();
+        wbtcJoin.join(address(this), 10);
+    }
+
     function testTokenSai() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
@@ -860,5 +931,27 @@ contract DssDeployTest is DssDeployTestBase {
         sai.approve(address(saiJoin), uint256(-1));
         saiJoin.deny(address(this));
         saiJoin.join(address(this), 10);
+    }
+
+    function testManagedGemJoin_WBTC() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        WBTC wbtc = new WBTC(10 * 10 ** 8);
+        ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
+        assertEq(wbtcJoin.dec(), 8);
+
+        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        assertEq(wbtc.balanceOf(address(wbtcJoin)), 0);
+        assertEq(vat.gem("WBTC", address(this)), 0);
+        wbtcJoin.join(address(this), 10 * 10 ** 8);
+        assertEq(wbtc.balanceOf(address(wbtcJoin)), 10 * 10 ** 8);
+        assertEq(vat.gem("WBTC", address(this)), 10 * 10 ** 18);
+        wbtcJoin.exit(address(this), address(this), 4 * 10 ** 8);
+        assertEq(wbtc.balanceOf(address(wbtcJoin)), 6 * 10 ** 8);
+        assertEq(vat.gem("WBTC", address(this)), 6 * 10 ** 18);
+        assertEq(wbtc.balanceOf(address(this)), 4 * 10 ** 8);
     }
 }
