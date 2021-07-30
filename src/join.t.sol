@@ -707,7 +707,7 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
         WBTC wbtc = new WBTC(100 * 10 ** 8);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
-        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        dssDeploy.deployCollateralFlip("WBTC", address(wbtcJoin), address(pip));
         wbtc.approve(address(wbtcJoin), uint256(-1));
         // Fail here
         wbtcJoin.join(address(this), 10 ether);
@@ -718,7 +718,7 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
         WBTC wbtc = new WBTC(100 * 10 ** 8);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
-        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        dssDeploy.deployCollateralFlip("WBTC", address(wbtcJoin), address(pip));
         wbtc.approve(address(wbtcJoin), uint256(-1));
         wbtcJoin.join(address(this), 10 * 10 ** 8);
         // Fail here
@@ -733,7 +733,7 @@ contract DssDeployTest is DssDeployTestBase {
         wbtc.mint(10);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
 
-        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        dssDeploy.deployCollateralFlip("WBTC", address(wbtcJoin), address(pip));
 
         wbtc.approve(address(wbtcJoin), uint256(-1));
         wbtcJoin.deny(address(this));
@@ -748,7 +748,7 @@ contract DssDeployTest is DssDeployTestBase {
         wbtc.mint(10);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
 
-        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        dssDeploy.deployCollateralFlip("WBTC", address(wbtcJoin), address(pip));
 
         wbtc.approve(address(wbtcJoin), uint256(-1));
         wbtcJoin.join(address(this), 10);
@@ -887,7 +887,7 @@ contract DssDeployTest is DssDeployTestBase {
         wbtc.mint(20);
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
 
-        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        dssDeploy.deployCollateralFlip("WBTC", address(wbtcJoin), address(pip));
 
         wbtc.approve(address(wbtcJoin), uint256(-1));
         wbtcJoin.join(address(this), 10);
@@ -941,7 +941,7 @@ contract DssDeployTest is DssDeployTestBase {
         ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
         assertEq(wbtcJoin.dec(), 8);
 
-        dssDeploy.deployCollateral("WBTC", address(wbtcJoin), address(pip));
+        dssDeploy.deployCollateralFlip("WBTC", address(wbtcJoin), address(pip));
 
         wbtc.approve(address(wbtcJoin), uint256(-1));
         assertEq(wbtc.balanceOf(address(wbtcJoin)), 0);
