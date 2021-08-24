@@ -51,6 +51,7 @@ contract ManagedGemJoin {
     event Deny(address indexed usr);
     event Join(address indexed urn, uint256 amt);
     event Exit(address indexed urn, address indexed usr, uint256 amt);
+    event Cage();
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
         live = 1;
@@ -64,6 +65,7 @@ contract ManagedGemJoin {
 
     function cage() external auth {
         live = 0;
+        emit Cage();
     }
 
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
