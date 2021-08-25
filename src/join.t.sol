@@ -22,6 +22,7 @@ import "./tokens/KNC.sol";
 import "./tokens/LINK.sol";
 import "./tokens/LRC.sol";
 import "./tokens/MANA.sol";
+import "./tokens/MATIC.sol";
 import "./tokens/OMG.sol";
 import "./tokens/PAXUSD.sol";
 import "./tokens/RENBTC.sol";
@@ -402,6 +403,29 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(aave.balanceOf(address(this)), 94 * 10**18);
         assertEq(aave.balanceOf(address(aaveJoin)), 6 * 10**18);
         assertEq(vat.gem("AAVE", address(this)), 6 * 10**18);
+    }
+
+    function testGemJoin_MATIC() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        MATIC matic = new MATIC(100 * 10**18);
+        GemJoin maticJoin = new GemJoin(address(vat), "MATIC", address(matic));
+        assertEq(maticJoin.dec(), 18);
+
+        dssDeploy.deployCollateral("MATIC", address(maticJoin), address(pip));
+
+        matic.approve(address(maticJoin), uint256(-1));
+        assertEq(matic.balanceOf(address(this)), 100 * 10**18);
+        assertEq(matic.balanceOf(address(maticJoin)), 0);
+        assertEq(vat.gem("MATIC", address(this)), 0);
+        maticJoin.join(address(this), 10 * 10**18);
+        assertEq(matic.balanceOf(address(maticJoin)), 10 * 10**18);
+        assertEq(vat.gem("MATIC", address(this)), 10 * 10**18);
+        maticJoin.exit(address(this), 4 * 10**18);
+        assertEq(matic.balanceOf(address(this)), 94 * 10**18);
+        assertEq(matic.balanceOf(address(maticJoin)), 6 * 10**18);
+        assertEq(vat.gem("MATIC", address(this)), 6 * 10**18);
     }
 
     function testGemJoin_LRC() public {
