@@ -58,7 +58,11 @@ contract ManagedGemJoin {
         vat = VatLike(vat_);
         ilk = ilk_;
         gem = GemLike(gem_);
-        dec = GemLike(gem_).decimals();
+
+        uint256 dec_ = GemLike(gem_).decimals();
+        require(dec_ <= 18, "ManagedGemJoin/decimals-19-or-higher");
+        dec = dec_;
+
         wards[msg.sender] = 1;
         emit Rely(msg.sender);
     }
