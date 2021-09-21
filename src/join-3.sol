@@ -34,8 +34,14 @@ interface GemLike {
 contract GemJoin3 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external auth { wards[usr] = 1; }
-    function deny(address usr) external auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -43,6 +49,13 @@ contract GemJoin3 {
     GemLike public gem;
     uint256 public dec;
     uint256 public live;  // Access Flag
+
+    // Events
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed urn, uint256 wad);
+    event Exit(address indexed guy, uint256 wad);
+    event Cage();
 
     constructor(address vat_, bytes32 ilk_, address gem_, uint256 decimals) public {
         require(decimals < 18, "GemJoin3/decimals-18-or-higher");
@@ -52,10 +65,12 @@ contract GemJoin3 {
         ilk = ilk_;
         gem = GemLike(gem_);
         dec = decimals;
+        emit Rely(msg.sender);
     }
 
     function cage() external auth {
         live = 0;
+        emit Cage();
     }
 
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
@@ -68,6 +83,7 @@ contract GemJoin3 {
         require(wad <= 2 ** 255, "GemJoin3/overflow");
         vat.slip(ilk, urn, int256(wad));
         require(gem.transferFrom(msg.sender, address(this), amt), "GemJoin3/failed-transfer");
+        emit Join(urn, amt);
     }
 
     function exit(address guy, uint256 amt) public {
@@ -75,5 +91,6 @@ contract GemJoin3 {
         require(wad <= 2 ** 255, "GemJoin3/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));
         require(gem.transfer(guy, amt), "GemJoin3/failed-transfer");
+        emit Exit(guy, amt);
     }
 }

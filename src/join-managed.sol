@@ -41,9 +41,14 @@ contract ManagedGemJoin {
 
     // --- Auth ---
     mapping (address => uint256) public wards;
-
-    function rely(address usr) external auth { wards[usr] = 1; emit Rely(usr); }
-    function deny(address usr) external auth { wards[usr] = 0; emit Deny(usr); }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth { require(wards[msg.sender] == 1, "ManagedGemJoin/non-authed"); _; }
 
     // --- Events ---

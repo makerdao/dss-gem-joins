@@ -61,8 +61,14 @@ contract GemBag {
 contract GemJoin4 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external auth { wards[usr] = 1; }
-    function deny(address usr) external auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -70,6 +76,13 @@ contract GemJoin4 {
     GemLike public gem;
     uint256 public dec;
     uint256 public live;  // Access Flag
+
+    // Events
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed urn, uint256 wad);
+    event Exit(address indexed guy, uint256 wad);
+    event Cage();
 
     mapping(address => address) public bags;
 
@@ -80,10 +93,12 @@ contract GemJoin4 {
         ilk = ilk_;
         gem = GemLike(gem_);
         dec = gem.decimals();
+        emit Rely(msg.sender);
     }
 
     function cage() external auth {
         live = 0;
+        emit Cage();
     }
 
     // -- admin --
@@ -105,6 +120,7 @@ contract GemJoin4 {
 
         GemBag(bags[msg.sender]).exit(address(this), wad);
         vat.slip(ilk, urn, int256(wad));
+        emit Join(urn, wad);
     }
 
     function exit(address usr, uint256 wad) external {
@@ -112,5 +128,6 @@ contract GemJoin4 {
 
         vat.slip(ilk, msg.sender, -int256(wad));
         require(gem.transfer(usr, wad), "GemJoin4/failed-transfer");
+        emit Exit(usr, wad);
     }
 }

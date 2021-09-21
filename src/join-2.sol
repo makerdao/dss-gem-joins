@@ -38,8 +38,14 @@ interface GemLike {
 contract GemJoin2 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external auth { wards[usr] = 1; }
-    function deny(address usr) external auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -48,6 +54,13 @@ contract GemJoin2 {
     uint256 public dec;
     uint256 public live;  // Access Flag
 
+    // Events
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed urn, uint256 wad);
+    event Exit(address indexed guy, uint256 wad);
+    event Cage();
+
     constructor(address vat_, bytes32 ilk_, address gem_) public {
         wards[msg.sender] = 1;
         live = 1;
@@ -55,10 +68,12 @@ contract GemJoin2 {
         ilk = ilk_;
         gem = GemLike(gem_);
         dec = gem.decimals();
+        emit Rely(msg.sender);
     }
 
     function cage() external auth {
         live = 0;
+        emit Cage();
     }
 
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
@@ -80,6 +95,8 @@ contract GemJoin2 {
         require(ok, "GemJoin2/failed-transfer");
 
         require(prevBalance - wad == gem.balanceOf(msg.sender), "GemJoin2/failed-transfer");
+
+        emit Join(urn, wad);
     }
 
     function exit(address guy, uint256 wad) public {
@@ -95,5 +112,7 @@ contract GemJoin2 {
         require(ok, "GemJoin2/failed-transfer");
 
         require(prevBalance - wad == gem.balanceOf(address(this)), "GemJoin2/failed-transfer");
+
+        emit Exit(guy, wad);
     }
 }
