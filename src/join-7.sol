@@ -103,7 +103,7 @@ contract GemJoin7 {
         uint256 wad = mul(sub(gem.balanceOf(address(this)), bal), 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin7/overflow");
         vat.slip(ilk, urn, int256(wad));
-        emit Join(urn, wad);
+        emit Join(urn, amt);
     }
 
     function exit(address guy, uint256 amt) public {
