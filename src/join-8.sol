@@ -56,8 +56,8 @@ contract GemJoin8 {
     // Events
     event Rely(address indexed usr);
     event Deny(address indexed usr);
-    event Join(address indexed urn, uint256 wad);
-    event Exit(address indexed guy, uint256 wad);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
     event Cage();
 
     mapping (address => uint256) public implementations;
@@ -87,22 +87,22 @@ contract GemJoin8 {
         require(y == 0 || (z = x * y) / y == x, "GemJoin8/overflow");
     }
 
-    function join(address urn, uint256 amt) public {
+    function join(address usr, uint256 amt) public {
         require(live == 1, "GemJoin8/not-live");
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin8/overflow");
         require(implementations[gem.erc20Impl()] == 1, "GemJoin8/implementation-invalid");
-        vat.slip(ilk, urn, int256(wad));
+        vat.slip(ilk, usr, int256(wad));
         require(gem.transferFrom(msg.sender, address(this), amt), "GemJoin8/failed-transfer");
-        emit Join(urn, amt);
+        emit Join(usr, amt);
     }
 
-    function exit(address guy, uint256 amt) public {
+    function exit(address usr, uint256 amt) public {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin8/overflow");
         require(implementations[gem.erc20Impl()] == 1, "GemJoin8/implementation-invalid");
         vat.slip(ilk, msg.sender, -int256(wad));
-        require(gem.transfer(guy, amt), "GemJoin8/failed-transfer");
-        emit Exit(guy, amt);
+        require(gem.transfer(usr, amt), "GemJoin8/failed-transfer");
+        emit Exit(usr, amt);
     }
 }

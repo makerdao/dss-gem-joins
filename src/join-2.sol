@@ -57,8 +57,8 @@ contract GemJoin2 {
     // Events
     event Rely(address indexed usr);
     event Deny(address indexed usr);
-    event Join(address indexed urn, uint256 wad);
-    event Exit(address indexed guy, uint256 wad);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
     event Cage();
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
@@ -80,10 +80,10 @@ contract GemJoin2 {
         require(y == 0 || (z = x * y) / y == x, "GemJoin2/overflow");
     }
 
-    function join(address urn, uint256 wad) public {
+    function join(address usr, uint256 wad) public {
         require(live == 1, "GemJoin2/not-live");
         require(wad <= 2 ** 255, "GemJoin2/overflow");
-        vat.slip(ilk, urn, int256(wad));
+        vat.slip(ilk, usr, int256(wad));
         uint256 prevBalance = gem.balanceOf(msg.sender);
 
         require(prevBalance >= wad, "GemJoin2/no-funds");
@@ -96,10 +96,10 @@ contract GemJoin2 {
 
         require(prevBalance - wad == gem.balanceOf(msg.sender), "GemJoin2/failed-transfer");
 
-        emit Join(urn, wad);
+        emit Join(usr, wad);
     }
 
-    function exit(address guy, uint256 wad) public {
+    function exit(address usr, uint256 wad) public {
         require(wad <= 2 ** 255, "GemJoin2/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));
         uint256 prevBalance = gem.balanceOf(address(this));
@@ -107,12 +107,12 @@ contract GemJoin2 {
         require(prevBalance >= wad, "GemJoin2/no-funds");
 
         (bool ok,) = address(gem).call(
-            abi.encodeWithSignature("transfer(address,uint256)", guy, wad)
+            abi.encodeWithSignature("transfer(address,uint256)", usr, wad)
         );
         require(ok, "GemJoin2/failed-transfer");
 
         require(prevBalance - wad == gem.balanceOf(address(this)), "GemJoin2/failed-transfer");
 
-        emit Exit(guy, wad);
+        emit Exit(usr, wad);
     }
 }

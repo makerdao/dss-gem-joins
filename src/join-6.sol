@@ -61,8 +61,8 @@ contract GemJoin6 {
     // Events
     event Rely(address indexed usr);
     event Deny(address indexed usr);
-    event Join(address indexed urn, uint256 wad);
-    event Exit(address indexed guy, uint256 wad);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
     event Cage();
 
     mapping (address => uint256) public implementations;

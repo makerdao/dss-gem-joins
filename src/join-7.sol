@@ -60,8 +60,8 @@ contract GemJoin7 {
     // Events
     event Rely(address indexed usr);
     event Deny(address indexed usr);
-    event Join(address indexed urn, uint256 wad);
-    event Exit(address indexed guy, uint256 wad);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
     event Cage();
 
     mapping (address => uint256) public implementations;
@@ -95,23 +95,23 @@ contract GemJoin7 {
         require((z = x - y) <= x, "GemJoin7/underflow");
     }
 
-    function join(address urn, uint256 amt) public {
+    function join(address usr, uint256 amt) public {
         require(live == 1, "GemJoin7/not-live");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
         uint256 bal = gem.balanceOf(address(this));
         gem.transferFrom(msg.sender, address(this), amt);
         uint256 wad = mul(sub(gem.balanceOf(address(this)), bal), 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin7/overflow");
-        vat.slip(ilk, urn, int256(wad));
-        emit Join(urn, amt);
+        vat.slip(ilk, usr, int256(wad));
+        emit Join(usr, amt);
     }
 
-    function exit(address guy, uint256 amt) public {
+    function exit(address usr, uint256 amt) public {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin7/overflow");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
         vat.slip(ilk, msg.sender, -int256(wad));
-        gem.transfer(guy, amt);
-        emit Exit(guy, amt);
+        gem.transfer(usr, amt);
+        emit Exit(usr, amt);
     }
 }

@@ -80,8 +80,8 @@ contract GemJoin4 {
     // Events
     event Rely(address indexed usr);
     event Deny(address indexed usr);
-    event Join(address indexed urn, uint256 wad);
-    event Exit(address indexed guy, uint256 wad);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
     event Cage();
 
     mapping(address => address) public bags;
@@ -114,13 +114,13 @@ contract GemJoin4 {
     }
 
     // -- gems --
-    function join(address urn, uint256 wad) external {
+    function join(address usr, uint256 wad) external {
         require(live == 1, "GemJoin4/not-live");
         require(int256(wad) >= 0, "GemJoin4/negative-amount");
 
         GemBag(bags[msg.sender]).exit(address(this), wad);
-        vat.slip(ilk, urn, int256(wad));
-        emit Join(urn, wad);
+        vat.slip(ilk, usr, int256(wad));
+        emit Join(usr, wad);
     }
 
     function exit(address usr, uint256 wad) external {
