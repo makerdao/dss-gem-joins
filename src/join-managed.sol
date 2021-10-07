@@ -49,8 +49,8 @@ contract ManagedGemJoin {
     // --- Events ---
     event Rely(address indexed usr);
     event Deny(address indexed usr);
-    event Join(address indexed urn, uint256 amt);
-    event Exit(address indexed urn, address indexed usr, uint256 amt);
+    event Join(address indexed usr, uint256 amt);
+    event Exit(address indexed usr, address indexed dst, uint256 amt);
     event Cage();
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
