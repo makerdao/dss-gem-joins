@@ -1002,4 +1002,24 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(vat.gem("WBTC", address(this)), 6 * 10 ** 18);
         assertEq(wbtc.balanceOf(address(this)), 4 * 10 ** 8);
     }
+
+    function testFailManagedGemJoinExit2_WBTC() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        WBTC wbtc = new WBTC(10 * 10 ** 8);
+        ManagedGemJoin wbtcJoin = new ManagedGemJoin(address(vat), "WBTC", address(wbtc));
+        assertEq(wbtcJoin.dec(), 8);
+
+        dssDeploy.deployCollateralFlip("WBTC", address(wbtcJoin), address(pip));
+
+        wbtc.approve(address(wbtcJoin), uint256(-1));
+        assertEq(wbtc.balanceOf(address(wbtcJoin)), 0);
+        assertEq(vat.gem("WBTC", address(this)), 0);
+        wbtcJoin.join(address(this), 10 * 10 ** 8);
+        assertEq(wbtc.balanceOf(address(wbtcJoin)), 10 * 10 ** 8);
+        assertEq(vat.gem("WBTC", address(this)), 10 * 10 ** 18);
+        wbtcJoin.deny(address(this));
+        wbtcJoin.exit(address(this), 4 * 10 ** 8); // Fail Here
+    }
 }
