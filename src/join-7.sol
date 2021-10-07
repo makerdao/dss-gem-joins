@@ -41,8 +41,14 @@ interface GemLike {
 
 contract GemJoin7 {
     mapping (address => uint256) public wards;
-    function rely(address usr) external auth { wards[usr] = 1; }
-    function deny(address usr) external auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -50,6 +56,13 @@ contract GemJoin7 {
     GemLike public gem;
     uint256 public dec;
     uint256 public live; // Access flag
+
+    // Events
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
+    event Cage();
 
     mapping (address => uint256) public implementations;
 
@@ -62,10 +75,12 @@ contract GemJoin7 {
         vat = VatLike(vat_);
         ilk = ilk_;
         setImplementation(address(gem.upgradedAddress()), 1);
+        emit Rely(msg.sender);
     }
 
     function cage() external auth {
         live = 0;
+        emit Cage();
     }
 
     function setImplementation(address implementation, uint256 permitted) public auth {
@@ -80,21 +95,23 @@ contract GemJoin7 {
         require((z = x - y) <= x, "GemJoin7/underflow");
     }
 
-    function join(address urn, uint256 amt) public {
+    function join(address usr, uint256 amt) public {
         require(live == 1, "GemJoin7/not-live");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
         uint256 bal = gem.balanceOf(address(this));
         gem.transferFrom(msg.sender, address(this), amt);
         uint256 wad = mul(sub(gem.balanceOf(address(this)), bal), 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin7/overflow");
-        vat.slip(ilk, urn, int256(wad));
+        vat.slip(ilk, usr, int256(wad));
+        emit Join(usr, amt);
     }
 
-    function exit(address guy, uint256 amt) public {
+    function exit(address usr, uint256 amt) public {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin7/overflow");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
         vat.slip(ilk, msg.sender, -int256(wad));
-        gem.transfer(guy, amt);
+        gem.transfer(usr, amt);
+        emit Exit(usr, amt);
     }
 }
