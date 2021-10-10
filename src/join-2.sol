@@ -80,7 +80,7 @@ contract GemJoin2 {
         require(y == 0 || (z = x * y) / y == x, "GemJoin2/overflow");
     }
 
-    function join(address usr, uint256 wad) public {
+    function join(address usr, uint256 wad) external {
         require(live == 1, "GemJoin2/not-live");
         require(wad <= 2 ** 255, "GemJoin2/overflow");
         vat.slip(ilk, usr, int256(wad));
@@ -99,7 +99,7 @@ contract GemJoin2 {
         emit Join(usr, wad);
     }
 
-    function exit(address usr, uint256 wad) public {
+    function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "GemJoin2/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));
         uint256 prevBalance = gem.balanceOf(address(this));

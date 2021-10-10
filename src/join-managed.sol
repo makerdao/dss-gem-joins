@@ -81,7 +81,7 @@ contract ManagedGemJoin {
         require(y == 0 || (z = x * y) / y == x, "ManagedGemJoin/overflow");
     }
 
-    function join(address urn, uint256 amt) public auth {
+    function join(address urn, uint256 amt) external auth {
         require(live == 1, "ManagedGemJoin/not-live");
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(wad <= (2 ** 255 - 1), "ManagedGemJoin/overflow");
@@ -90,7 +90,7 @@ contract ManagedGemJoin {
         emit Join(urn, amt);
     }
 
-    function exit(address urn, address usr, uint256 amt) public auth {
+    function exit(address urn, address usr, uint256 amt) external auth {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(wad <= 2 ** 255, "ManagedGemJoin/overflow");
         vat.slip(ilk, urn, -int256(wad));
