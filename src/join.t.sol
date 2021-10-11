@@ -1020,6 +1020,8 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(wbtc.balanceOf(address(wbtcJoin)), 10 * 10 ** 8);
         assertEq(vat.gem("WBTC", address(this)), 10 * 10 ** 18);
         wbtcJoin.deny(address(this));
-        wbtcJoin.exit(address(this), 4 * 10 ** 8); // Fail Here
+
+        // Unauthed exit should fail with error "ManagedGemJoin/failed-transfer"
+        wbtcJoin.exit(address(this), 4 * 10 ** 8);
     }
 }
