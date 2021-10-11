@@ -94,7 +94,7 @@ contract ManagedGemJoin {
         exit(usr, msg.sender, amt);
     }
 
-    function exit(address usr, address dst, uint256 amt) external auth {
+    function exit(address usr, address dst, uint256 amt) public auth {
         uint256 wad = _mul(amt, 10 ** (18 - dec));
         require(wad <= 2 ** 255, "ManagedGemJoin/overflow");
         vat.slip(ilk, usr, -int256(wad));
