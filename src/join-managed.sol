@@ -90,8 +90,8 @@ contract ManagedGemJoin {
         emit Join(usr, amt);
     }
 
-    function exit(address usr, uint256 amt) external auth {
-        _exit(usr, msg.sender, amt);
+    function exit(address dst, uint256 amt) external auth {
+        _exit(msg.sender, dst, amt);
     }
 
     function exit(address usr, address dst, uint256 amt) external auth {
