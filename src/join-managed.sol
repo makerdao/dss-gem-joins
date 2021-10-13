@@ -55,7 +55,7 @@ contract ManagedGemJoin {
     event Rely(address indexed usr);
     event Deny(address indexed usr);
     event Join(address indexed usr, uint256 amt);
-    event Exit(address indexed usr, address indexed dst, uint256 amt);
+    event Exit(address indexed urn, address indexed usr, uint256 amt);
     event Cage();
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
@@ -90,11 +90,11 @@ contract ManagedGemJoin {
         emit Join(usr, amt);
     }
 
-    function exit(address usr, address dst, uint256 amt) external auth {
+    function exit(address urn, address usr, uint256 amt) external auth {
         uint256 wad = _mul(amt, 10 ** (18 - dec));
         require(wad <= 2 ** 255, "ManagedGemJoin/overflow");
-        vat.slip(ilk, usr, -int256(wad));
-        require(gem.transfer(dst, amt), "ManagedGemJoin/failed-transfer");
-        emit Exit(usr, dst, amt);
+        vat.slip(ilk, urn, -int256(wad));
+        require(gem.transfer(usr, amt), "ManagedGemJoin/failed-transfer");
+        emit Exit(urn, usr, amt);
     }
 }
