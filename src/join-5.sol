@@ -78,7 +78,7 @@ contract GemJoin5 {
         require(y == 0 || (z = x * y) / y == x, "GemJoin5/overflow");
     }
 
-    function join(address usr, uint256 amt) public {
+    function join(address usr, uint256 amt) external {
         require(live == 1, "GemJoin5/not-live");
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin5/overflow");
@@ -87,7 +87,7 @@ contract GemJoin5 {
         emit Join(usr, amt);
     }
 
-    function exit(address usr, uint256 amt) public {
+    function exit(address usr, uint256 amt) external {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin5/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));

@@ -73,7 +73,7 @@ contract AuthGemJoin {
         emit Cage();
     }
 
-    function join(address usr, uint256 wad) public auth {
+    function join(address usr, uint256 wad) external auth {
         require(live == 1, "AuthGemJoin/not-live");
         require(int256(wad) >= 0, "AuthGemJoin/overflow");
         vat.slip(ilk, usr, int256(wad));
@@ -81,7 +81,7 @@ contract AuthGemJoin {
         emit Join(usr, wad);
     }
 
-    function exit(address usr, uint256 wad) public {
+    function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "AuthGemJoin/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));
         require(gem.transfer(usr, wad), "AuthGemJoin/failed-transfer");

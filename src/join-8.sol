@@ -87,7 +87,7 @@ contract GemJoin8 {
         require(y == 0 || (z = x * y) / y == x, "GemJoin8/overflow");
     }
 
-    function join(address usr, uint256 amt) public {
+    function join(address usr, uint256 amt) external {
         require(live == 1, "GemJoin8/not-live");
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin8/overflow");
@@ -97,7 +97,7 @@ contract GemJoin8 {
         emit Join(usr, amt);
     }
 
-    function exit(address usr, uint256 amt) public {
+    function exit(address usr, uint256 amt) external {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin8/overflow");
         require(implementations[gem.erc20Impl()] == 1, "GemJoin8/implementation-invalid");

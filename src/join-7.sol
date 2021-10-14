@@ -95,7 +95,7 @@ contract GemJoin7 {
         require((z = x - y) <= x, "GemJoin7/underflow");
     }
 
-    function join(address usr, uint256 amt) public {
+    function join(address usr, uint256 amt) external {
         require(live == 1, "GemJoin7/not-live");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
         uint256 bal = gem.balanceOf(address(this));
@@ -106,7 +106,7 @@ contract GemJoin7 {
         emit Join(usr, amt);
     }
 
-    function exit(address usr, uint256 amt) public {
+    function exit(address usr, uint256 amt) external {
         uint256 wad = mul(amt, 10 ** (18 - dec));
         require(int256(wad) >= 0, "GemJoin7/overflow");
         require(implementations[gem.upgradedAddress()] == 1, "GemJoin7/implementation-invalid");
