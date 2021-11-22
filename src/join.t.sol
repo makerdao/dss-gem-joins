@@ -37,6 +37,7 @@ import "./tokens/USDT.sol";
 import "./tokens/WBTC.sol";
 import "./tokens/YFI.sol";
 import "./tokens/ZRX.sol";
+import "./tokens/WSTETH.sol";
 
 contract DssDeployTest is DssDeployTestBase {
     function testGemJoin_REP() public {
@@ -979,5 +980,28 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(wbtc.balanceOf(address(wbtcJoin)), 6 * 10 ** 8);
         assertEq(vat.gem("WBTC", address(this)), 6 * 10 ** 18);
         assertEq(wbtc.balanceOf(address(this)), 4 * 10 ** 8);
+    }
+
+    function testGemJoin_WSTETH() public {
+        deployKeepAuth();
+        DSValue pip = new DSValue();
+
+        WSTETH wsteth = new WSTETH(100 ether);
+        GemJoin wstethJoin = new GemJoin(address(vat), "WSTETH", address(wsteth));
+        assertEq(wstethJoin.dec(), 18);
+
+        dssDeploy.deployCollateralFlip("WSTETH", address(wstethJoin), address(pip));
+
+        wsteth.approve(address(wstethJoin), uint256(-1));
+        assertEq(wsteth.balanceOf(address(this)), 100 ether);
+        assertEq(wsteth.balanceOf(address(wstethJoin)), 0);
+        assertEq(vat.gem("WSTETH", address(this)), 0);
+        wstethJoin.join(address(this), 10 ether);
+        assertEq(wsteth.balanceOf(address(wstethJoin)), 10 ether);
+        assertEq(vat.gem("WSTETH", address(this)), 10 ether);
+        wstethJoin.exit(address(this), 4 ether);
+        assertEq(wsteth.balanceOf(address(this)), 94 ether);
+        assertEq(wsteth.balanceOf(address(wstethJoin)), 6 ether);
+        assertEq(vat.gem("WSTETH", address(this)), 6 ether);
     }
 }
