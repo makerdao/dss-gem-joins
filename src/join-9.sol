@@ -20,8 +20,6 @@
 
 pragma solidity >=0.6.12;
 
-import "dss/lib.sol";
-
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
@@ -35,13 +33,19 @@ interface GemLike {
 
 // For a token that has a fee (PAXG)
 
-contract GemJoin9 is LibNote {
+contract GemJoin9 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth {
-        require(wards[msg.sender] == 1, "GemJoin/not-authorized");
+        require(wards[msg.sender] == 1, "GemJoin9/not-authorized");
         _;
     }
 
@@ -52,32 +56,43 @@ contract GemJoin9 is LibNote {
     uint256 public live;            // Active Flag
     uint256 public total;
 
+    // --- Events ---
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
+    event Cage();
+
     constructor(address vat_, bytes32 ilk_, address gem_) public {
-        wards[msg.sender] = 1;
-        live = 1;
         vat = VatLike(vat_);
         ilk = ilk_;
         gem = GemLike(gem_);
-        dec = gem.decimals();
+        dec = GemLike(gem_).decimals();
+        live = 1;
+        wards[msg.sender] = 1;
+        emit Rely(msg.sender);
     }
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
+        emit Cage();
     }
+
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x + y) >= x);
+        require((z = x + y) >= x, "GemJoin9/overflow");
     }
     function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require((z = x - y) <= x);
+        require((z = x - y) <= x, "GemJoin9/underflow");
     }
+
     // Allow dss-proxy-actions to send the gems with only 1 transfer
     // This should be called via token.transfer() followed by gemJoin.join() atomically or
     // someone else can steal your tokens
-    function join(address usr) public note returns (uint256) {
-        require(live == 1, "GemJoin/not-live");
+    function join(address usr) public returns (uint256) {
+        require(live == 1, "GemJoin9/not-live");
 
         uint256 _total = total;     // Cache to save an SLOAD
         uint256 wad = sub(gem.balanceOf(address(this)), _total);
-        require(int256(wad) >= 0, "GemJoin/overflow");
+        require(int256(wad) >= 0, "GemJoin9/overflow");
 
         vat.slip(ilk, usr, int256(wad));
         total = add(_total, wad);
@@ -85,15 +100,17 @@ contract GemJoin9 is LibNote {
         return wad;
     }
     function join(address usr, uint256 wad) external {
-        require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
+        require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin9/failed-transfer");
         join(usr);
+        emit Join(usr, wad);
     }
-    function exit(address usr, uint256 wad) external note {
-        require(wad <= 2 ** 255, "GemJoin/overflow");
+    function exit(address usr, uint256 wad) external {
+        require(wad <= 2 ** 255, "GemJoin9/overflow");
 
         vat.slip(ilk, msg.sender, -int256(wad));
         total = sub(total, wad);
 
-        require(gem.transfer(usr, wad), "GemJoin/failed-transfer");
+        require(gem.transfer(usr, wad), "GemJoin9/failed-transfer");
+        emit Exit(usr, wad);
     }
 }
