@@ -45,11 +45,11 @@ contract GemJoin9 is LibNote {
         _;
     }
 
-    VatLike public vat;   // CDP Engine
-    bytes32 public ilk;   // Collateral Type
-    GemLike public gem;
-    uint256 public dec;
-    uint256 public live;  // Active Flag
+    VatLike public immutable vat;   // CDP Engine
+    bytes32 public immutable ilk;   // Collateral Type
+    GemLike public immutable gem;
+    uint256 public immutable dec;
+    uint256 public live;            // Active Flag
     uint256 public total;
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
