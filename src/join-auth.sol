@@ -20,8 +20,6 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
@@ -34,7 +32,7 @@ interface GemLike {
 
 // For a token that needs restriction on the sources which are able to execute the join function (like SAI through Migration contract)
 
-contract AuthGemJoin is LibNote {
+contract AuthGemJoin {
     VatLike public vat;
     bytes32 public ilk;
     GemLike public gem;
@@ -43,9 +41,22 @@ contract AuthGemJoin is LibNote {
 
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) public note auth { wards[usr] = 1; }
-    function deny(address usr) public note auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth { require(wards[msg.sender] == 1, "AuthGemJoin/non-authed"); _; }
+
+    // Events
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
+    event Cage();
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
         wards[msg.sender] = 1;
@@ -54,22 +65,26 @@ contract AuthGemJoin is LibNote {
         ilk = ilk_;
         gem = GemLike(gem_);
         dec = gem.decimals();
+        emit Rely(msg.sender);
     }
 
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
+        emit Cage();
     }
 
-    function join(address usr, uint256 wad) public auth note {
+    function join(address usr, uint256 wad) external auth {
         require(live == 1, "AuthGemJoin/not-live");
         require(int256(wad) >= 0, "AuthGemJoin/overflow");
         vat.slip(ilk, usr, int256(wad));
         require(gem.transferFrom(msg.sender, address(this), wad), "AuthGemJoin/failed-transfer");
+        emit Join(usr, wad);
     }
 
-    function exit(address usr, uint256 wad) public note {
+    function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "AuthGemJoin/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));
         require(gem.transfer(usr, wad), "AuthGemJoin/failed-transfer");
+        emit Exit(usr, wad);
     }
 }

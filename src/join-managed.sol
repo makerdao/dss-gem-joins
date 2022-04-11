@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-/// join-3.sol -- Non-standard token adapters
+/// join-auth.sol -- Non-standard token adapters
 
 // Copyright (C) 2018 Rain <rainbreak@riseup.net>
 // Copyright (C) 2018-2020 Maker Ecosystem Growth Holdings, INC.
@@ -18,20 +18,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-pragma solidity >=0.5.12;
+pragma solidity >=0.6.12;
 
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
 
 interface GemLike {
+    function decimals() external view returns (uint256);
     function transfer(address, uint256) external returns (bool);
     function transferFrom(address, address, uint256) external returns (bool);
 }
 
-// For a token that has a lower precision than 18 and doesn't have decimals field in place (like DGD)
+// For a token that needs join/exit to be managed (like in permissioned vaults)
 
-contract GemJoin3 {
+contract ManagedGemJoin {
+    VatLike public immutable vat;
+    bytes32 public immutable ilk;
+    GemLike public immutable gem;
+    uint256 public immutable dec;
+    uint256 public live;  // Access Flag
+
     // --- Auth ---
     mapping (address => uint256) public wards;
     function rely(address usr) external auth {
@@ -42,29 +49,26 @@ contract GemJoin3 {
         wards[usr] = 0;
         emit Deny(usr);
     }
-    modifier auth { require(wards[msg.sender] == 1); _; }
+    modifier auth { require(wards[msg.sender] == 1, "ManagedGemJoin/non-authed"); _; }
 
-    VatLike public vat;
-    bytes32 public ilk;
-    GemLike public gem;
-    uint256 public dec;
-    uint256 public live;  // Access Flag
-
-    // Events
+    // --- Events ---
     event Rely(address indexed usr);
     event Deny(address indexed usr);
-    event Join(address indexed usr, uint256 wad);
-    event Exit(address indexed usr, uint256 wad);
+    event Join(address indexed usr, uint256 amt);
+    event Exit(address indexed urn, address indexed usr, uint256 amt);
     event Cage();
 
-    constructor(address vat_, bytes32 ilk_, address gem_, uint256 decimals) public {
-        require(decimals < 18, "GemJoin3/decimals-18-or-higher");
-        wards[msg.sender] = 1;
+    constructor(address vat_, bytes32 ilk_, address gem_) public {
         live = 1;
         vat = VatLike(vat_);
         ilk = ilk_;
         gem = GemLike(gem_);
-        dec = decimals;
+
+        uint256 dec_ = GemLike(gem_).decimals();
+        require(dec_ <= 18, "ManagedGemJoin/decimals-19-or-higher");
+        dec = dec_;
+
+        wards[msg.sender] = 1;
         emit Rely(msg.sender);
     }
 
@@ -73,24 +77,24 @@ contract GemJoin3 {
         emit Cage();
     }
 
-    function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
-        require(y == 0 || (z = x * y) / y == x, "GemJoin3/overflow");
+    function _mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
+        require(y == 0 || (z = x * y) / y == x, "ManagedGemJoin/overflow");
     }
 
-    function join(address usr, uint256 amt) external {
-        require(live == 1, "GemJoin3/not-live");
-        uint256 wad = mul(amt, 10 ** (18 - dec));
-        require(wad <= 2 ** 255, "GemJoin3/overflow");
+    function join(address usr, uint256 amt) external auth {
+        require(live == 1, "ManagedGemJoin/not-live");
+        uint256 wad = _mul(amt, 10 ** (18 - dec));
+        require(wad <= (2 ** 255 - 1), "ManagedGemJoin/overflow");
         vat.slip(ilk, usr, int256(wad));
-        require(gem.transferFrom(msg.sender, address(this), amt), "GemJoin3/failed-transfer");
+        require(gem.transferFrom(msg.sender, address(this), amt), "ManagedGemJoin/failed-transfer");
         emit Join(usr, amt);
     }
 
-    function exit(address usr, uint256 amt) external {
-        uint256 wad = mul(amt, 10 ** (18 - dec));
-        require(wad <= 2 ** 255, "GemJoin3/overflow");
-        vat.slip(ilk, msg.sender, -int256(wad));
-        require(gem.transfer(usr, amt), "GemJoin3/failed-transfer");
-        emit Exit(usr, amt);
+    function exit(address urn, address usr, uint256 amt) external auth {
+        uint256 wad = _mul(amt, 10 ** (18 - dec));
+        require(wad <= 2 ** 255, "ManagedGemJoin/overflow");
+        vat.slip(ilk, urn, -int256(wad));
+        require(gem.transfer(usr, amt), "ManagedGemJoin/failed-transfer");
+        emit Exit(urn, usr, amt);
     }
 }

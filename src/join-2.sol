@@ -20,8 +20,6 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
@@ -37,11 +35,17 @@ interface GemLike {
 // For a token that does not return a bool on transfer or transferFrom (like OMG)
 // This is one way of doing it. Check the balances before and after calling a transfer
 
-contract GemJoin2 is LibNote {
+contract GemJoin2 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth { require(wards[msg.sender] == 1); _; }
 
     VatLike public vat;
@@ -50,6 +54,13 @@ contract GemJoin2 is LibNote {
     uint256 public dec;
     uint256 public live;  // Access Flag
 
+    // Events
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
+    event Cage();
+
     constructor(address vat_, bytes32 ilk_, address gem_) public {
         wards[msg.sender] = 1;
         live = 1;
@@ -57,20 +68,22 @@ contract GemJoin2 is LibNote {
         ilk = ilk_;
         gem = GemLike(gem_);
         dec = gem.decimals();
+        emit Rely(msg.sender);
     }
 
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
+        emit Cage();
     }
 
     function mul(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require(y == 0 || (z = x * y) / y == x, "GemJoin2/overflow");
     }
 
-    function join(address urn, uint256 wad) public note {
+    function join(address usr, uint256 wad) external {
         require(live == 1, "GemJoin2/not-live");
         require(wad <= 2 ** 255, "GemJoin2/overflow");
-        vat.slip(ilk, urn, int256(wad));
+        vat.slip(ilk, usr, int256(wad));
         uint256 prevBalance = gem.balanceOf(msg.sender);
 
         require(prevBalance >= wad, "GemJoin2/no-funds");
@@ -82,9 +95,11 @@ contract GemJoin2 is LibNote {
         require(ok, "GemJoin2/failed-transfer");
 
         require(prevBalance - wad == gem.balanceOf(msg.sender), "GemJoin2/failed-transfer");
+
+        emit Join(usr, wad);
     }
 
-    function exit(address guy, uint256 wad) public note {
+    function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "GemJoin2/overflow");
         vat.slip(ilk, msg.sender, -int256(wad));
         uint256 prevBalance = gem.balanceOf(address(this));
@@ -92,10 +107,12 @@ contract GemJoin2 is LibNote {
         require(prevBalance >= wad, "GemJoin2/no-funds");
 
         (bool ok,) = address(gem).call(
-            abi.encodeWithSignature("transfer(address,uint256)", guy, wad)
+            abi.encodeWithSignature("transfer(address,uint256)", usr, wad)
         );
         require(ok, "GemJoin2/failed-transfer");
 
         require(prevBalance - wad == gem.balanceOf(address(this)), "GemJoin2/failed-transfer");
+
+        emit Exit(usr, wad);
     }
 }

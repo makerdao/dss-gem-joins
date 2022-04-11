@@ -2,7 +2,7 @@
 
 pragma solidity >=0.5.12;
 
-contract LRC {
+contract WSTETH {
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x + y) >= x, "ds-math-add-overflow");
     }
@@ -12,8 +12,8 @@ contract LRC {
     event Approval(address indexed src, address indexed guy, uint256 wad);
     event Transfer(address indexed src, address indexed dst, uint256 wad);
 
-    string  public  name = "LRC";
-    string  public  symbol = "LRC";
+    string  public  name = "Wrapped liquid staked Ether 2.0";
+    string  public  symbol = "WSTETH";
     uint8   public  decimals = 18;
     uint256                                            _supply;
     mapping (address => uint256)                       _balances;

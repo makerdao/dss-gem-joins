@@ -20,8 +20,6 @@
 
 pragma solidity >=0.5.12;
 
-import "dss/lib.sol";
-
 interface VatLike {
     function slip(bytes32, address, int256) external;
 }
@@ -38,11 +36,17 @@ interface GemLike {
 //  If the implementation behind the proxy is changed, this prevents joins
 //   and exits until the implementation is reviewed and approved by governance.
 
-contract GemJoin6 is LibNote {
+contract GemJoin6 {
     // --- Auth ---
     mapping (address => uint256) public wards;
-    function rely(address usr) external note auth { wards[usr] = 1; }
-    function deny(address usr) external note auth { wards[usr] = 0; }
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
     modifier auth {
         require(wards[msg.sender] == 1, "GemJoin6/not-authorized");
         _;
@@ -54,6 +58,13 @@ contract GemJoin6 is LibNote {
     uint256 public dec;
     uint256 public live;  // Access Flag
 
+    // Events
+    event Rely(address indexed usr);
+    event Deny(address indexed usr);
+    event Join(address indexed usr, uint256 wad);
+    event Exit(address indexed usr, uint256 wad);
+    event Cage();
+
     mapping (address => uint256) public implementations;
 
     constructor(address vat_, bytes32 ilk_, address gem_) public {
@@ -64,24 +75,28 @@ contract GemJoin6 is LibNote {
         gem = GemLike(gem_);
         setImplementation(gem.implementation(), 1);
         dec = gem.decimals();
+        emit Rely(msg.sender);
     }
-    function cage() external note auth {
+    function cage() external auth {
         live = 0;
+        emit Cage();
     }
-    function setImplementation(address implementation, uint256 permitted) public auth note {
+    function setImplementation(address implementation, uint256 permitted) public auth  {
         implementations[implementation] = permitted;  // 1 live, 0 disable
     }
-    function join(address usr, uint256 wad) external note {
+    function join(address usr, uint256 wad) external {
         require(live == 1, "GemJoin6/not-live");
         require(int256(wad) >= 0, "GemJoin6/overflow");
         require(implementations[gem.implementation()] == 1, "GemJoin6/implementation-invalid");
         vat.slip(ilk, usr, int256(wad));
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin6/failed-transfer");
+        emit Join(usr, wad);
     }
-    function exit(address usr, uint256 wad) external note {
+    function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "GemJoin6/overflow");
         require(implementations[gem.implementation()] == 1, "GemJoin6/implementation-invalid");
         vat.slip(ilk, msg.sender, -int256(wad));
         require(gem.transfer(usr, wad), "GemJoin6/failed-transfer");
+        emit Exit(usr, wad);
     }
 }
