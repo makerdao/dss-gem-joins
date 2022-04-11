@@ -3,7 +3,7 @@
 /// join-9.sol -- Non-standard token adapters
 
 // Copyright (C) 2018 Rain <rainbreak@riseup.net>
-// Copyright (C) 2018-2020 Maker Ecosystem Growth Holdings, INC.
+// Copyright (C) 2020-2022 Dai Foundation
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
