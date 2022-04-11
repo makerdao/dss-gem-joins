@@ -839,6 +839,8 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(vat.gem("PAXG", address(this)), 0);
         assertEq(paxg.balanceOf(paxg.feeRecipient()), 784 * 10 ** 16);
         assertEq(paxgJoin.total(), paxg.balanceOf(address(paxgJoin)));
+    }
+ 
     function testFailManagedGemJoinJoinWad() public {
         deployKeepAuth();
         DSValue pip = new DSValue();
