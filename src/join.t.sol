@@ -924,7 +924,7 @@ contract DssDeployTest is DssDeployTestBase {
         deployKeepAuth();
         DSValue pip = new DSValue();
 
-        PAXG paxg = new PAXG(100 * 10 ** 18);
+        PAXG paxg = new PAXG(100 * 10 ** 18, 0);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
 
         dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
