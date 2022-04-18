@@ -94,23 +94,31 @@ contract GemJoin9 {
     // Allow dss-proxy-actions to send the gems with only 1 transfer
     // This should be called via token.transfer() followed by gemJoin.join() atomically or
     // someone else can steal your tokens
-    function join(address usr) public returns (uint256) {
+    function join(address usr) external returns (uint256 wad) {
+        wad = _join(usr);
+
+        emit Join(usr, wad);
+    }
+
+    function join(address usr, uint256 wad) external {
+        require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin9/failed-transfer");
+
+        _join(usr);
+
+        emit Join(usr, wad);
+    }
+
+    function _join(address usr) internal returns (uint256 wad) {
         require(live == 1, "GemJoin9/not-live");
 
         uint256 _total = total;     // Cache to save an SLOAD
-        uint256 wad = sub(gem.balanceOf(address(this)), _total);
+        wad = sub(gem.balanceOf(address(this)), _total);
         require(int256(wad) >= 0, "GemJoin9/overflow");
 
         vat.slip(ilk, usr, int256(wad));
         total = add(_total, wad);
+    }
 
-        return wad;
-    }
-    function join(address usr, uint256 wad) external {
-        require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin9/failed-transfer");
-        join(usr);
-        emit Join(usr, wad);
-    }
     function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "GemJoin9/overflow");
 
