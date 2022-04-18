@@ -34,27 +34,16 @@ interface GemLike {
 // For a token that has a fee (PAXG)
 
 contract GemJoin9 {
-    // --- Auth ---
-    mapping (address => uint256) public wards;
-    function rely(address usr) external auth {
-        wards[usr] = 1;
-        emit Rely(usr);
-    }
-    function deny(address usr) external auth {
-        wards[usr] = 0;
-        emit Deny(usr);
-    }
-    modifier auth {
-        require(wards[msg.sender] == 1, "GemJoin9/not-authorized");
-        _;
-    }
+    // --- Data ---
+    mapping (address => uint256) public wards; // Auth
 
-    VatLike public immutable vat;   // CDP Engine
-    bytes32 public immutable ilk;   // Collateral Type
+    uint256 public live;                       // Active Flag
+    uint256 public total;
+
+    VatLike public immutable vat;              // CDP Engine
+    bytes32 public immutable ilk;              // Collateral Type
     GemLike public immutable gem;
     uint256 public immutable dec;
-    uint256 public live;            // Active Flag
-    uint256 public total;
 
     // --- Events ---
     event Rely(address indexed usr);
@@ -72,11 +61,29 @@ contract GemJoin9 {
         wards[msg.sender] = 1;
         emit Rely(msg.sender);
     }
+
+    // --- Auth ---
+    modifier auth {
+        require(wards[msg.sender] == 1, "GemJoin9/not-authorized");
+        _;
+    }
+
+    function rely(address usr) external auth {
+        wards[usr] = 1;
+        emit Rely(usr);
+    }
+
+    function deny(address usr) external auth {
+        wards[usr] = 0;
+        emit Deny(usr);
+    }
+
     function cage() external auth {
         live = 0;
         emit Cage();
     }
 
+    // --- Math ---
     function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x + y) >= x, "GemJoin9/overflow");
     }
