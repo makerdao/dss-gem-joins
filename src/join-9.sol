@@ -122,8 +122,8 @@ contract GemJoin9 {
     function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "GemJoin9/overflow");
 
-        vat.slip(ilk, msg.sender, -int256(wad));
         total = _sub(total, wad);
+        vat.slip(ilk, msg.sender, -int256(wad));
 
         require(gem.transfer(usr, wad), "GemJoin9/failed-transfer");
         emit Exit(usr, wad);
