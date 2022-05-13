@@ -115,8 +115,8 @@ contract GemJoin9 {
         wad = _sub(gem.balanceOf(address(this)), _total);
         require(int256(wad) >= 0, "GemJoin9/overflow");
 
-        vat.slip(ilk, usr, int256(wad));
         total = _add(_total, wad);
+        vat.slip(ilk, usr, int256(wad));
     }
 
     function exit(address usr, uint256 wad) external {
