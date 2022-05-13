@@ -556,7 +556,8 @@ contract DssDeployTest is DssDeployTestBase {
         PAXG paxg = new PAXG(100 * 10 ** 18, 0);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
 
-        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        StairstepExponentialDecrease paxgCalc = calcFab.newStairstepExponentialDecrease(address(pause.proxy()));
+        dssDeploy.deployCollateralClip("PAXG", address(paxgJoin), address(pip), address(paxgCalc));
 
         paxg.approve(address(paxgJoin), uint256(-1));
         assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
@@ -758,7 +759,8 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
         PAXG paxg = new PAXG(100 * 10 ** 18, 0);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
-        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        StairstepExponentialDecrease paxgCalc = calcFab.newStairstepExponentialDecrease(address(pause.proxy()));
+        dssDeploy.deployCollateralClip("PAXG", address(paxgJoin), address(pip), address(paxgCalc));
         paxg.approve(address(paxgJoin), uint256(-1));
         // Fail here
         paxgJoin.join(address(this), 1000 ether);
@@ -769,7 +771,8 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
         PAXG paxg = new PAXG(100 * 10 ** 18, 0);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
-        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        StairstepExponentialDecrease paxgCalc = calcFab.newStairstepExponentialDecrease(address(pause.proxy()));
+        dssDeploy.deployCollateralClip("PAXG", address(paxgJoin), address(pip), address(paxgCalc));
         paxg.approve(address(paxgJoin), uint256(-1));
         paxgJoin.join(address(this), 10 * 10 ** 18);
         // Fail here
@@ -781,7 +784,8 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
         PAXG paxg = new PAXG(100 * 10 ** 18, 40000);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
-        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        StairstepExponentialDecrease paxgCalc = calcFab.newStairstepExponentialDecrease(address(pause.proxy()));
+        dssDeploy.deployCollateralClip("PAXG", address(paxgJoin), address(pip), address(paxgCalc));
         paxg.approve(address(paxgJoin), uint256(-1));
         assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
         assertEq(paxg.balanceOf(address(paxgJoin)), 0);
@@ -806,7 +810,8 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
         PAXG paxg = new PAXG(100 * 10 ** 18, 10000);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
-        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        StairstepExponentialDecrease paxgCalc = calcFab.newStairstepExponentialDecrease(address(pause.proxy()));
+        dssDeploy.deployCollateralClip("PAXG", address(paxgJoin), address(pip), address(paxgCalc));
         paxg.approve(address(paxgJoin), uint256(-1));
         assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
         assertEq(paxg.balanceOf(address(paxgJoin)), 0);
@@ -821,7 +826,8 @@ contract DssDeployTest is DssDeployTestBase {
         DSValue pip = new DSValue();
         PAXG paxg = new PAXG(100 * 10 ** 18, 40000);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
-        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        StairstepExponentialDecrease paxgCalc = calcFab.newStairstepExponentialDecrease(address(pause.proxy()));
+        dssDeploy.deployCollateralClip("PAXG", address(paxgJoin), address(pip), address(paxgCalc));
         assertEq(paxg.balanceOf(address(this)), 100 * 10 ** 18);
         assertEq(paxg.balanceOf(address(paxgJoin)), 0);
         assertEq(vat.gem("PAXG", address(this)), 0);
@@ -1008,8 +1014,8 @@ contract DssDeployTest is DssDeployTestBase {
 
         PAXG paxg = new PAXG(100 * 10 ** 18, 0);
         GemJoin9 paxgJoin = new GemJoin9(address(vat), "PAXG", address(paxg));
-
-        dssDeploy.deployCollateral("PAXG", address(paxgJoin), address(pip));
+        StairstepExponentialDecrease paxgCalc = calcFab.newStairstepExponentialDecrease(address(pause.proxy()));
+        dssDeploy.deployCollateralClip("PAXG", address(paxgJoin), address(pip), address(paxgCalc));
 
         paxg.approve(address(paxgJoin), uint256(-1));
         paxgJoin.join(address(this), 100 * 10 ** 18);
