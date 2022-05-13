@@ -84,10 +84,10 @@ contract GemJoin9 {
     }
 
     // --- Math ---
-    function add(uint256 x, uint256 y) internal pure returns (uint256 z) {
+    function _add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x + y) >= x, "GemJoin9/overflow");
     }
-    function sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
+    function _sub(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x - y) <= x, "GemJoin9/underflow");
     }
 
@@ -112,18 +112,18 @@ contract GemJoin9 {
         require(live == 1, "GemJoin9/not-live");
 
         uint256 _total = total;     // Cache to save an SLOAD
-        wad = sub(gem.balanceOf(address(this)), _total);
+        wad = _sub(gem.balanceOf(address(this)), _total);
         require(int256(wad) >= 0, "GemJoin9/overflow");
 
         vat.slip(ilk, usr, int256(wad));
-        total = add(_total, wad);
+        total = _add(_total, wad);
     }
 
     function exit(address usr, uint256 wad) external {
         require(wad <= 2 ** 255, "GemJoin9/overflow");
 
         vat.slip(ilk, msg.sender, -int256(wad));
-        total = sub(total, wad);
+        total = _sub(total, wad);
 
         require(gem.transfer(usr, wad), "GemJoin9/failed-transfer");
         emit Exit(usr, wad);
