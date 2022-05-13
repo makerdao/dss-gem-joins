@@ -38,7 +38,7 @@ contract GemJoin9 {
     mapping (address => uint256) public wards; // Auth
 
     uint256 public live;                       // Active Flag
-    uint256 public total;
+    uint256 public total;                      // Internal balance tracking
 
     VatLike public immutable vat;              // CDP Engine
     bytes32 public immutable ilk;              // Collateral Type
