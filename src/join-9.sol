@@ -86,6 +86,8 @@ contract GemJoin9 {
     }
 
     // --- Math ---
+    uint256 internal constant MAXINT256 = uint256(type(int256).max);
+
     function _add(uint256 x, uint256 y) internal pure returns (uint256 z) {
         require((z = x + y) >= x, "GemJoin9/overflow");
     }
@@ -115,14 +117,14 @@ contract GemJoin9 {
 
         uint256 _total = total;     // Cache to save an SLOAD
         wad = _sub(gem.balanceOf(address(this)), _total);
-        require(int256(wad) >= 0, "GemJoin9/overflow");
+        require(wad <= MAXINT256, "GemJoin9/overflow");
 
         total = _add(_total, wad);
         vat.slip(ilk, usr, int256(wad));
     }
 
     function exit(address usr, uint256 wad) external {
-        require(wad <= 2 ** 255, "GemJoin9/overflow");
+        require(wad <= MAXINT256, "GemJoin9/overflow");
 
         total = _sub(total, wad);
         vat.slip(ilk, msg.sender, -int256(wad));
