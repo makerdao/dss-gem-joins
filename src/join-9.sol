@@ -58,7 +58,11 @@ contract GemJoin9 {
         vat = VatLike(vat_);
         ilk = ilk_;
         gem = GemLike(gem_);
-        dec = GemLike(gem_).decimals();
+
+        uint256 dec_ = GemLike(gem_).decimals();
+        require(dec_ <= 18, "GemJoin9/decimals-19-or-higher");
+        dec = dec_;
+
         live = 1;
         wards[msg.sender] = 1;
         emit Rely(msg.sender);
