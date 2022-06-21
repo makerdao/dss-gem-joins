@@ -1,9 +1,11 @@
+// SPDX-FileCopyrightText: © 2018 Rain <rainbreak@riseup.net>
+// SPDX-FileCopyrightText: © 2020 Dai Foundation <www.daifoundation.org>
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /// join-9.sol -- Non-standard token adapters
 
 // Copyright (C) 2018 Rain <rainbreak@riseup.net>
-// Copyright (C) 2020-2022 Dai Foundation
+// Copyright (C) 2020 Dai Foundation <www.daifoundation.org>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
