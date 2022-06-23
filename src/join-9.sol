@@ -121,14 +121,14 @@ contract GemJoin9 {
 
         uint256 _total = total;     // Cache to save an SLOAD
         wad = _sub(gem.balanceOf(address(this)), _total);
-        require(wad <= MAXINT256, "GemJoin9/overflow");
+        require(wad <= MAXINT256, "GemJoin9/int256-overflow");
 
         total = _add(_total, wad);
         vat.slip(ilk, usr, int256(wad));
     }
 
     function exit(address usr, uint256 wad) external {
-        require(wad <= MAXINT256, "GemJoin9/overflow");
+        require(wad <= MAXINT256, "GemJoin9/int256-overflow");
 
         total = _sub(total, wad);
         vat.slip(ilk, msg.sender, -int256(wad));
