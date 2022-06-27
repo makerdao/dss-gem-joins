@@ -58,7 +58,7 @@ contract GemJoin9 {
         gem = GemLike(gem_);
 
         uint256 dec_ = GemLike(gem_).decimals();
-        require(dec_ <= 18, "GemJoin9/decimals-19-or-higher");
+        require(dec_ == 18, "GemJoin9/invalid-decimals");
         dec = dec_;
 
         live = 1;
