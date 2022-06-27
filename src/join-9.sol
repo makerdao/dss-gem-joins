@@ -109,9 +109,9 @@ contract GemJoin9 {
     function join(address usr, uint256 wad) external {
         require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin9/failed-transfer");
 
-        uint256 _wad = _join(usr);
+        _join(usr);
 
-        emit Join(usr, _wad);
+        emit Join(usr, wad);
     }
 
     function _join(address usr) internal returns (uint256 wad) {
