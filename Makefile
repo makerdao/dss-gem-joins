@@ -1,3 +1,3 @@
 build  :; dapp --use solc:0.6.12 build
 clean  :; dapp clean
-test   :; make && ./test.sh $(match)
+test   :; ./test.sh $(match)
