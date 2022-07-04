@@ -153,8 +153,12 @@ contract DssDeployTest is DssDeployTestBase {
         return c;
     }
 
+    function bytesToBytes32(bytes memory source) internal pure returns (bytes32 result) {
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
 
-    // ---
     function giveTokens(address token, uint256 amount) internal {
         // Edge case - balance is already set for some reason
         if (GemAbstract(token).balanceOf(address(this)) == amount) return;
@@ -843,6 +847,12 @@ contract DssDeployTest is DssDeployTestBase {
         assertEq(usdt.balanceOf(address(this)), 100 * 10 ** 6);
         assertEq(usdt.balanceOf(address(usdtJoin)), 0);
         assertEq(vat.gem("USDT", address(this)), 0);
+        // Set owner to address(this)
+        hevm2.store(
+            address(usdt),
+            bytes32(uint256(0)),
+            bytesToBytes32(abi.encode(address(this)))
+        );
         usdt.deprecate(address(1));
         // Fail here
         usdtJoin.join(address(this), 10 * 10 ** 6);
@@ -857,6 +867,12 @@ contract DssDeployTest is DssDeployTestBase {
         dssDeploy.deployCollateralFlip("USDT", address(usdtJoin), address(pip));
         usdt.approve(address(usdtJoin), uint256(-1));
         usdtJoin.join(address(this), 10 * 10 ** 6);
+        // Set owner to address(this)
+        hevm2.store(
+            address(usdt),
+            bytes32(uint256(0)),
+            bytesToBytes32(abi.encode(address(this)))
+        );
         usdt.deprecate(address(1));
         // Fail here
         usdtJoin.exit(address(this), 10 * 10 ** 6);
