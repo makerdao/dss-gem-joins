@@ -1,10 +1,10 @@
+// SPDX-FileCopyrightText: © 2018 Rain <rainbreak@riseup.net>
+// SPDX-FileCopyrightText: © 2020 Dai Foundation <www.daifoundation.org>
+//
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
 /// join-9.sol -- Non-standard token adapters
 
-// Copyright (C) 2018 Rain <rainbreak@riseup.net>
-// Copyright (C) 2020-2022 Dai Foundation
-//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -56,7 +56,11 @@ contract GemJoin9 {
         vat = VatLike(vat_);
         ilk = ilk_;
         gem = GemLike(gem_);
-        dec = GemLike(gem_).decimals();
+
+        uint256 dec_ = GemLike(gem_).decimals();
+        require(dec_ == 18, "GemJoin9/invalid-decimals");
+        dec = dec_;
+
         live = 1;
         wards[msg.sender] = 1;
         emit Rely(msg.sender);
@@ -113,14 +117,14 @@ contract GemJoin9 {
 
         uint256 _total = total;     // Cache to save an SLOAD
         wad = _sub(gem.balanceOf(address(this)), _total);
-        require(int256(wad) >= 0, "GemJoin9/overflow");
+        require(int256(wad) >= 0, "GemJoin9/int256-overflow");
 
         total = _add(_total, wad);
         vat.slip(ilk, usr, int256(wad));
     }
 
     function exit(address usr, uint256 wad) external {
-        require(wad <= 2 ** 255, "GemJoin9/overflow");
+        require(wad <= 2 ** 255, "GemJoin9/int256-overflow");
 
         total = _sub(total, wad);
         vat.slip(ilk, msg.sender, -int256(wad));
